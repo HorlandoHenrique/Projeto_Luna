@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Luna</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <main class="page-shell">
+    <section class="phone-frame" aria-label="Chat com Luna">
+      <header class="topbar">
+        <div class="profile">
+          <img src="./assets/luna-placeholder.svg" alt="Foto da Luna" class="avatar" />
+          <div>
+            <h1>Luna</h1>
+            <p>online agora</p>
+          </div>
+        </div>
+
+        <button class="login-button" type="button">Entrar</button>
+      </header>
+
+      <section class="hero-card">
+        <img src="./assets/luna-placeholder.svg" alt="Luna" class="luna-photo" />
+        <div>
+          <p class="eyebrow">beta privado</p>
+          <h2>Converse um pouco com a Luna.</h2>
+          <p class="subcopy">Um chat simples, íntimo e em construção. Sem excesso. Sem parecer app genérico.</p>
+        </div>
+      </section>
+
+      <section class="usage-card">
+        <div>
+          <span class="label">Mensagens restantes</span>
+          <strong id="message-count">20</strong>
+        </div>
+        <button class="subscribe-button" type="button">Assinar</button>
+      </section>
+
+      <section class="chat-window" id="chat-window">
+        <div class="bubble luna">
+          oi...
+        </div>
+        <div class="bubble luna">
+          eu ainda tô sendo criada, então pega leve comigo kk
+        </div>
+        <div class="bubble luna">
+          mas pode me chamar pra conversar 🙂
+        </div>
+      </section>
+
+      <form class="composer" id="composer">
+        <input id="message-input" type="text" placeholder="Escreva uma mensagem..." autocomplete="off" />
+        <button type="submit">Enviar</button>
+      </form>
+    </section>
+  </main>
+
+  <script src="./script.js"></script>
+</body>
+</html>
