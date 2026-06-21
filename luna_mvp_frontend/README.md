@@ -1,28 +1,64 @@
 # Luna MVP Frontend
 
-MVP inicial estático:
-- foto da Luna
-- chat
-- botão de login
-- contador de mensagens restantes
-- botão de assinatura inativo
+Frontend estático inicial do Projeto Luna. Não há framework, build, pacote instalado ou fonte externa obrigatória.
 
-## Como testar
-Abra `index.html` no navegador.
+## Arquivos Principais
 
-## Onde trocar a foto
-Substitua o arquivo:
+```text
+luna_mvp_frontend/
+|-- assets/
+|   `-- luna-placeholder.svg
+|-- scripts/
+|   `-- app.js
+|-- styles/
+|   `-- main.css
+`-- index.html
+```
 
-`assets/luna-placeholder.svg`
+## Como Rodar
 
-por uma imagem real da Luna com o mesmo nome, ou altere o caminho no HTML.
+Abra `index.html` diretamente no navegador.
 
-## Próximo passo
-Conectar esse frontend a:
-1. login real;
-2. backend;
-3. banco de dados;
-4. IA;
-5. memória básica;
-6. limite real de mensagens;
-7. checkout/assinatura.
+Ou rode um servidor local:
+
+```powershell
+cd C:\Projeto_Luna\luna_mvp_frontend
+python -m http.server 5173
+```
+
+Se necessário:
+
+```powershell
+py -m http.server 5173
+```
+
+Acesse `http://localhost:5173`.
+
+## Interface
+
+A tela atual é um site desktop-first:
+
+- header horizontal;
+- painel visual da Luna;
+- painel de chat amplo;
+- contador de mensagens;
+- login e assinatura simulados.
+
+O mobile continua responsivo, mas não é mais o foco visual principal.
+
+## Trocar a Imagem da Luna
+
+Substitua `assets/luna-placeholder.svg` por uma imagem final mantendo o mesmo nome, ou altere o caminho no `index.html`.
+
+## Limites Desta Fase
+
+Este frontend não deve implementar:
+
+- backend;
+- login real;
+- pagamento real;
+- banco de dados;
+- IA;
+- memória persistente.
+
+O comportamento atual do chat é apenas uma simulação local para testar a sensação da interface.

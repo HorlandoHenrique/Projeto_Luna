@@ -1,25 +1,41 @@
-# Projeto Luna
+# Regras Do Projeto Luna
 
-Sempre consulte os arquivos da pasta /knowledge antes de alterar qualquer sistema.
+Antes de alterar qualquer sistema, consulte os arquivos relevantes da pasta `knowledge/`.
 
-Prioridades:
+## Prioridades
 
-1. Consistência da personagem
-2. Retenção emocional
-3. Memória persistente
-4. Escalabilidade
-5. Monetização
+1. Consistencia da personagem.
+2. Retencao emocional.
+3. Clareza e simplicidade do produto.
+4. Memoria persistente, quando chegar a fase de backend.
+5. Escalabilidade sem sacrificar a sensacao humana.
+6. Monetizacao discreta e coerente com o vinculo emocional.
 
-Nunca alterar:
+## Nao Alterar Sem Decisao Explicita
 
-- Aparência fixa da Luna
-- Personalidade fixa
-- Sistema de Intimidade/Afinidade/Conforto
-- Diretrizes de progressão emocional
+- Aparencia canonica da Luna.
+- Personalidade canonica.
+- Sistema de intimidade, afinidade e conforto.
+- Diretrizes de progressao emocional.
+- Tom humano, brasileiro e nao assistencial.
 
-Arquivos principais:
+## Regras Do Frontend MVP
 
-- 03_character_identity.md
-- 04_visual_bible.md
-- 05_personality_bible.md
-- 06_relationship_system.md
+- Priorizar desktop-first na interface atual, mantendo adaptação responsiva para mobile.
+- Manter interface simples: foto da Luna, chat, login visual, contador de mensagens e assinatura visual.
+- Evitar visual futurista, neon, exagerado ou SaaS generico.
+- Nao adicionar backend nesta fase.
+- Nao adicionar banco de dados nesta fase.
+- Nao adicionar autenticacao real nesta fase.
+- Nao adicionar pagamento real nesta fase.
+- Nao conectar IA nesta fase.
+- Preferir codigo legivel a abstracoes prematuras.
+
+## Arquivos De Conhecimento Mais Importantes
+
+- `knowledge/02_product.md`
+- `knowledge/03_character_identity.md`
+- `knowledge/04_visual_bible.md`
+- `knowledge/05_personality_bible.md`
+- `knowledge/06_relationship_system.md`
+- `knowledge/09_mvp_roadmap.md`

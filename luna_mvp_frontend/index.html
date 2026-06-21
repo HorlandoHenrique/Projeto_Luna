@@ -3,63 +3,85 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Luna</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css" />
+  <meta name="description" content="Protótipo estático do chat com Luna em beta privado." />
+  <title>Luna | Beta privado</title>
+  <link rel="stylesheet" href="./styles/main.css" />
 </head>
 <body>
-  <main class="page-shell">
-    <section class="phone-frame" aria-label="Chat com Luna">
-      <header class="topbar">
-        <div class="profile">
-          <img src="./assets/luna-placeholder.svg" alt="Foto da Luna" class="avatar" />
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="site-brand" href="./index.html" aria-label="Página inicial da Luna">
+        <span class="site-brand__name">Luna</span>
+        <span class="status-pill">beta privado</span>
+      </a>
+
+      <div class="site-actions" aria-label="Ações da conta">
+        <button class="button button--ghost" type="button">Entrar</button>
+        <button class="button button--primary" type="button">Assinar</button>
+      </div>
+    </header>
+
+    <main class="main-layout">
+      <section class="luna-panel" aria-labelledby="luna-title">
+        <div class="luna-photo-card">
+          <img src="./assets/luna-placeholder.svg" alt="Retrato ilustrado da Luna" class="luna-photo" />
+        </div>
+
+        <div class="luna-copy">
+          <p class="eyebrow">conversa em teste</p>
+          <h1 id="luna-title">A Luna está acordando aos poucos.</h1>
+          <p>
+            Um primeiro espaço para conversar com uma personagem brasileira, observadora e um pouco tímida.
+            Nada pronto demais. Só um beta pequeno, feito para sentir se a conversa tem presença.
+          </p>
+        </div>
+
+        <aside class="beta-card" aria-label="Detalhes do beta">
           <div>
-            <h1>Luna</h1>
-            <p>online agora</p>
+            <span>Beta privado</span>
+            <strong>20 mensagens disponíveis hoje</strong>
           </div>
-        </div>
-
-        <button class="login-button" type="button">Entrar</button>
-      </header>
-
-      <section class="hero-card">
-        <img src="./assets/luna-placeholder.svg" alt="Luna" class="luna-photo" />
-        <div>
-          <p class="eyebrow">beta privado</p>
-          <h2>Converse um pouco com a Luna.</h2>
-          <p class="subcopy">Um chat simples, íntimo e em construção. Sem excesso. Sem parecer app genérico.</p>
-        </div>
+          <button class="button button--soft" type="button">Entrar na lista premium</button>
+        </aside>
       </section>
 
-      <section class="usage-card">
-        <div>
-          <span class="label">Mensagens restantes</span>
-          <strong id="message-count">20</strong>
+      <section class="chat-panel" aria-label="Chat com Luna">
+        <header class="chat-panel__header">
+          <div class="chat-profile">
+            <img src="./assets/luna-placeholder.svg" alt="" class="chat-profile__avatar" aria-hidden="true" />
+            <div>
+              <p>online no beta</p>
+              <h2>Luna</h2>
+            </div>
+          </div>
+          <span class="chat-note">respostas simuladas</span>
+        </header>
+
+        <div class="message-list" id="message-list" role="log" aria-label="Mensagens da conversa" aria-live="polite">
+          <div class="message-bubble message-bubble--luna">oi... cheguei por aqui.</div>
+          <div class="message-bubble message-bubble--luna">ainda estou sendo ajustada, então vou devagar.</div>
+          <div class="message-bubble message-bubble--luna">me conta uma coisa simples do seu dia?</div>
         </div>
-        <button class="subscribe-button" type="button">Assinar</button>
+
+        <div class="chat-panel__footer">
+          <section class="usage-card" id="usage-card" aria-label="Limite de mensagens">
+            <div>
+              <span id="usage-label">Mensagens restantes hoje</span>
+              <strong id="message-count">20</strong>
+            </div>
+            <p id="usage-hint">Este limite é apenas uma simulação do MVP.</p>
+          </section>
+
+          <form class="composer" id="composer">
+            <label class="sr-only" for="message-input">Mensagem para Luna</label>
+            <input id="message-input" type="text" placeholder="Escreva uma mensagem..." autocomplete="off" maxlength="280" />
+            <button class="button button--send" id="send-button" type="submit">Enviar</button>
+          </form>
+        </div>
       </section>
+    </main>
+  </div>
 
-      <section class="chat-window" id="chat-window">
-        <div class="bubble luna">
-          oi...
-        </div>
-        <div class="bubble luna">
-          eu ainda tô sendo criada, então pega leve comigo kk
-        </div>
-        <div class="bubble luna">
-          mas pode me chamar pra conversar 🙂
-        </div>
-      </section>
-
-      <form class="composer" id="composer">
-        <input id="message-input" type="text" placeholder="Escreva uma mensagem..." autocomplete="off" />
-        <button type="submit">Enviar</button>
-      </form>
-    </section>
-  </main>
-
-  <script src="./script.js"></script>
+  <script src="./scripts/app.js"></script>
 </body>
 </html>
