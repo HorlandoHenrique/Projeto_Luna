@@ -12,13 +12,13 @@ const LOW_MESSAGE_THRESHOLD = 5;
 let remainingMessages = DAILY_MESSAGE_LIMIT;
 
 const lunaReplies = [
-  "entendi... me conta melhor.",
-  "fiquei pensando no que você disse.",
-  "isso tem um jeito bem seu.",
-  "não sei se entendi tudo, mas quero ouvir.",
-  "pode continuar. estou aqui.",
-  "hmm, acho que eu faria uma pergunta sobre isso.",
-  "gostei dessa parte."
+  "entendi. me fala um pouco mais disso.",
+  "eu gosto quando a conversa começa assim, sem pressa.",
+  "faz sentido. fiquei curiosa com essa parte.",
+  "acho que eu te perguntaria o que ficou depois disso.",
+  "tô aqui lendo com calma.",
+  "isso parece pequeno, mas diz bastante.",
+  "me conta do seu jeito. não precisa arrumar tudo antes."
 ];
 
 function addMessage(text, author) {

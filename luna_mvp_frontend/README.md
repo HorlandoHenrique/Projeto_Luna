@@ -41,10 +41,11 @@ A tela atual é um site desktop-first:
 - header horizontal;
 - painel visual da Luna;
 - painel de chat amplo;
+- tema escuro quente;
 - contador de mensagens;
 - login e assinatura simulados.
 
-O mobile continua responsivo, mas não é mais o foco visual principal.
+O mobile continua responsivo, mas não é o foco visual principal.
 
 ## Trocar a Imagem da Luna
 

@@ -17,7 +17,7 @@ Projeto_Luna/
     `-- README.md
 ```
 
-> A pasta `luna_mvp_frontend` foi mantida por segurança, porque já existe no histórico do projeto. Internamente, ela agora representa o frontend estático atual.
+> A pasta `luna_mvp_frontend` foi mantida por segurança, porque já existe no histórico do projeto. Internamente, ela representa o frontend estático atual.
 
 ## Frontend Atual
 
@@ -26,9 +26,10 @@ O frontend é um site desktop-first, estático, feito apenas com HTML, CSS e Jav
 Ele contém:
 
 - cabeçalho horizontal com nome Luna, status beta, login visual e assinatura visual;
-- seção principal em duas colunas;
+- seção principal em duas colunas, pensada primeiro para notebook e desktop;
+- tema escuro quente, sem brilho artificial e sem aparência de aplicativo mobile;
 - painel esquerdo com foto grande da Luna e apresentação curta;
-- painel direito com chat, contador de mensagens e campo de envio;
+- painel direito com chat amplo, contador de mensagens e campo de envio;
 - respostas simuladas locais;
 - estado visual quando o limite de mensagens está acabando.
 
