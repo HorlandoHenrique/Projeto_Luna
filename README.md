@@ -9,6 +9,10 @@ Projeto_Luna/
 |-- AGENTS.md
 |-- README.md
 |-- knowledge/
+|-- Luna_visual/
+|   |-- 00_canon/
+|   |-- 01_Luna_References/
+|   `-- 02_Luna_Ambient_References/
 `-- luna_mvp_frontend/
     |-- assets/
     |-- scripts/
@@ -30,8 +34,17 @@ Ele contém:
 - tema escuro quente, sem brilho artificial e sem aparência de aplicativo mobile;
 - painel esquerdo com foto grande da Luna e apresentação curta;
 - painel direito com chat amplo, contador de mensagens e campo de envio;
+- foto da Luna derivada de `Luna_visual/00_canon/Luna_oficial_face.png`;
 - respostas simuladas locais;
 - estado visual quando o limite de mensagens está acabando.
+
+## Luna Visual
+
+A pasta `Luna_visual` guarda os materiais visuais oficiais e referências da personagem:
+
+- `00_canon/`: character sheet, regras visuais e imagens canônicas principais;
+- `01_Luna_References/`: referências de rosto/cabelo/expressão da Luna;
+- `02_Luna_Ambient_References/`: referências de ambiente e rotina.
 
 ## Como Rodar Localmente
 

@@ -7,7 +7,9 @@ Frontend estático inicial do Projeto Luna. Não há framework, build, pacote in
 ```text
 luna_mvp_frontend/
 |-- assets/
-|   `-- luna-placeholder.svg
+|   |-- luna-placeholder.svg
+|   |-- luna-site-avatar.jpg
+|   `-- luna-site-profile.jpg
 |-- scripts/
 |   `-- app.js
 |-- styles/
@@ -47,9 +49,9 @@ A tela atual é um site desktop-first:
 
 O mobile continua responsivo, mas não é o foco visual principal.
 
-## Trocar a Imagem da Luna
+## Imagem da Luna
 
-Substitua `assets/luna-placeholder.svg` por uma imagem final mantendo o mesmo nome, ou altere o caminho no `index.html`.
+A interface usa `assets/luna-site-profile.jpg` no painel principal e `assets/luna-site-avatar.jpg` no avatar do chat. Esses arquivos são derivados de `Luna_visual/00_canon/Luna_oficial_face.png`. O SVG antigo continua na pasta apenas como placeholder de segurança.
 
 ## Limites Desta Fase
 
