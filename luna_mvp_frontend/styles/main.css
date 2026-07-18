@@ -85,6 +85,9 @@ button {
 }
 
 .button:focus-visible,
+.account-form input:focus-visible,
+.account-tab:focus-visible,
+.account-link:focus-visible,
 .composer textarea:focus-visible {
   outline: 3px solid rgba(211, 138, 97, 0.28);
   outline-offset: 2px;
@@ -167,6 +170,232 @@ button {
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+.login-area {
+  position: relative;
+}
+
+.login-panel {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  z-index: 20;
+  width: min(390px, calc(100vw - 32px));
+  padding: 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: 22px;
+  background:
+    linear-gradient(180deg, rgba(246, 232, 220, 0.08), rgba(246, 232, 220, 0.03)),
+    rgba(36, 25, 23, 0.98);
+  box-shadow: 0 20px 54px rgba(0, 0, 0, 0.34);
+}
+
+.login-panel[hidden],
+.user-chip[hidden] {
+  display: none;
+}
+
+.login-panel__title {
+  margin: 0 0 10px;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.account-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  margin-bottom: 12px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(246, 232, 220, 0.045);
+}
+
+.account-tab {
+  min-height: 34px;
+  padding: 0 12px;
+  color: var(--muted);
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.account-tab.is-active {
+  color: #211411;
+  background: var(--accent);
+}
+
+.account-form {
+  display: grid;
+  gap: 10px;
+}
+
+.account-form[hidden] {
+  display: none;
+}
+
+.form-field {
+  display: grid;
+  gap: 6px;
+}
+
+.form-field span,
+.form-check span {
+  color: var(--muted-strong);
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.form-field input {
+  width: 100%;
+  min-height: 42px;
+  padding: 0 12px;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  outline: none;
+  background: rgba(246, 232, 220, 0.07);
+}
+
+.form-field input::placeholder {
+  color: rgba(214, 192, 179, 0.58);
+}
+
+.form-field input:focus {
+  border-color: rgba(211, 138, 97, 0.56);
+  background: rgba(246, 232, 220, 0.1);
+}
+
+.form-field-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.form-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.form-check input {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 auto;
+  margin: 2px 0 0;
+  accent-color: var(--accent);
+}
+
+.form-check--compact {
+  align-items: center;
+}
+
+.form-check--compact input {
+  margin-top: 0;
+}
+
+.account-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.account-link {
+  padding: 0;
+  color: var(--accent);
+  border: 0;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.account-submit {
+  width: 100%;
+  margin-top: 2px;
+}
+
+.login-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 13px 0 11px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.login-divider::before,
+.login-divider::after {
+  content: "";
+  height: 1px;
+  flex: 1;
+  background: var(--line);
+}
+
+.google-signin-button {
+  min-height: 44px;
+}
+
+.login-panel__hint {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.42;
+}
+
+.login-panel__hint.is-warning {
+  color: var(--warning);
+}
+
+.user-chip {
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  max-width: 260px;
+  padding: 5px 7px 5px 5px;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(246, 232, 220, 0.055);
+}
+
+.user-chip__avatar {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--panel-soft);
+}
+
+.user-chip span {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--muted-strong);
+  font-size: 13px;
+  font-weight: 750;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-chip__logout {
+  flex: 0 0 auto;
+  padding: 5px 9px;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 800;
 }
 
 /* Main layout */
@@ -661,6 +890,27 @@ button {
 
   .site-actions {
     width: 100%;
+  }
+
+  .login-area,
+  .login-area .button,
+  .user-chip {
+    width: 100%;
+    max-width: none;
+  }
+
+  .login-panel {
+    left: 0;
+    right: auto;
+  }
+
+  .form-field-group {
+    grid-template-columns: 1fr;
+  }
+
+  .account-row {
+    align-items: flex-start;
+    flex-direction: column;
   }
 
   .site-actions .button,

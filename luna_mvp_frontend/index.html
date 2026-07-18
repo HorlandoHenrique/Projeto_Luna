@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Protótipo estático do chat com Luna em beta privado." />
   <title>Luna | Beta privado</title>
-  <link rel="stylesheet" href="./styles/main.css?v=chat-wrap-words-20260718" />
+  <link rel="stylesheet" href="./styles/main.css?v=account-mvp-20260718" />
 </head>
 <body>
   <div class="site-shell">
@@ -16,7 +16,95 @@
       </a>
 
       <div class="site-actions" aria-label="Ações da conta">
-        <button class="button button--ghost" type="button">Entrar</button>
+        <div class="login-area" id="login-area">
+          <button class="button button--ghost" id="login-button" type="button" aria-expanded="false" aria-controls="login-panel">
+            Entrar
+          </button>
+          <div class="login-panel" id="login-panel" hidden>
+            <p class="login-panel__title">Sua conta Luna</p>
+
+            <div class="account-tabs" role="tablist" aria-label="Acesso da conta">
+              <button class="account-tab is-active" id="signup-tab" type="button" role="tab" aria-selected="true" aria-controls="signup-form" data-auth-mode="signup">
+                Criar conta
+              </button>
+              <button class="account-tab" id="signin-tab" type="button" role="tab" aria-selected="false" aria-controls="signin-form" data-auth-mode="signin">
+                Entrar
+              </button>
+            </div>
+
+            <form class="account-form" id="signup-form" aria-labelledby="signup-tab" data-auth-panel="signup">
+              <label class="form-field" for="signup-name">
+                <span>Nome</span>
+                <input id="signup-name" name="name" type="text" placeholder="Como a Luna vai te chamar" autocomplete="name" maxlength="40" required />
+              </label>
+
+              <label class="form-field" for="signup-email">
+                <span>E-mail</span>
+                <input id="signup-email" name="email" type="email" placeholder="voce@email.com" autocomplete="email" maxlength="90" required />
+              </label>
+
+              <div class="form-field-group">
+                <label class="form-field" for="signup-password">
+                  <span>Senha</span>
+                  <input id="signup-password" name="password" type="password" autocomplete="new-password" minlength="8" required />
+                </label>
+
+                <label class="form-field" for="signup-password-confirm">
+                  <span>Confirmar</span>
+                  <input id="signup-password-confirm" name="passwordConfirm" type="password" autocomplete="new-password" minlength="8" required />
+                </label>
+              </div>
+
+              <label class="form-check" for="signup-age">
+                <input id="signup-age" name="ageConfirmed" type="checkbox" required />
+                <span>Tenho 18 anos ou mais.</span>
+              </label>
+
+              <label class="form-check" for="signup-terms">
+                <input id="signup-terms" name="termsAccepted" type="checkbox" required />
+                <span>Aceito os termos e a privacidade do beta.</span>
+              </label>
+
+              <label class="form-check" for="signup-news">
+                <input id="signup-news" name="newsAccepted" type="checkbox" />
+                <span>Quero receber novidades do projeto.</span>
+              </label>
+
+              <button class="button button--primary account-submit" type="submit">Criar conta</button>
+            </form>
+
+            <form class="account-form" id="signin-form" aria-labelledby="signin-tab" data-auth-panel="signin" hidden>
+              <label class="form-field" for="signin-email">
+                <span>E-mail</span>
+                <input id="signin-email" name="email" type="email" placeholder="voce@email.com" autocomplete="username" maxlength="90" required />
+              </label>
+
+              <label class="form-field" for="signin-password">
+                <span>Senha</span>
+                <input id="signin-password" name="password" type="password" autocomplete="current-password" minlength="8" required />
+              </label>
+
+              <div class="account-row">
+                <label class="form-check form-check--compact" for="signin-remember">
+                  <input id="signin-remember" name="remember" type="checkbox" />
+                  <span>Lembrar</span>
+                </label>
+                <button class="account-link" id="forgot-password-button" type="button">Esqueci minha senha</button>
+              </div>
+
+              <button class="button button--primary account-submit" type="submit">Entrar</button>
+            </form>
+
+            <div class="login-divider" aria-hidden="true"><span>ou</span></div>
+            <div class="google-signin-button" id="google-signin-button"></div>
+            <p class="login-panel__hint" id="login-hint">Crie uma conta de teste para esta sessão.</p>
+          </div>
+          <div class="user-chip" id="user-chip" hidden>
+            <img class="user-chip__avatar" id="user-avatar" src="" alt="" />
+            <span id="user-name">Usuário</span>
+            <button class="user-chip__logout" id="logout-button" type="button">Sair</button>
+          </div>
+        </div>
         <button class="button button--primary" type="button">Assinar</button>
       </div>
     </header>
@@ -85,6 +173,8 @@
     </main>
   </div>
 
-  <script src="./scripts/app.js"></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="./scripts/auth-config.js?v=account-mvp-20260718"></script>
+  <script src="./scripts/app.js?v=account-mvp-20260718"></script>
 </body>
 </html>

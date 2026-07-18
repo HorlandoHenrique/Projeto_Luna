@@ -25,16 +25,16 @@ Projeto_Luna/
 
 ## Frontend Atual
 
-O frontend é um site desktop-first, estático, feito apenas com HTML, CSS e JavaScript. Ele não exige instalação de pacotes nem fonte externa.
+O frontend é um site desktop-first, estático, feito apenas com HTML, CSS e JavaScript. Ele não exige instalação de pacotes nem fonte externa obrigatória.
 
 Ele contém:
 
-- cabeçalho horizontal com nome Luna, status beta, login visual e assinatura visual;
+- cabeçalho horizontal com nome Luna, status beta, cadastro próprio simulado, login com Google opcional e assinatura visual;
 - seção principal em duas colunas, pensada primeiro para notebook e desktop;
 - tema escuro quente, sem brilho artificial e sem aparência de aplicativo mobile;
 - painel esquerdo com foto grande da Luna e apresentação curta;
 - painel direito com chat amplo, contador de mensagens e campo de envio;
-- foto da Luna derivada de `Luna_visual/00_canon/Luna_oficial_face.png`;
+- foto da Luna derivada dos arquivos canônicos de `Luna_visual/00_canon/`;
 - respostas simuladas locais;
 - estado visual quando o limite de mensagens está acabando.
 
@@ -45,6 +45,27 @@ A pasta `Luna_visual` guarda os materiais visuais oficiais e referências da per
 - `00_canon/`: character sheet, regras visuais e imagens canônicas principais;
 - `01_Luna_References/`: referências de rosto/cabelo/expressão da Luna;
 - `02_Luna_Ambient_References/`: referências de ambiente e rotina.
+
+## Cadastro E Login
+
+O frontend possui cadastro próprio simulado para o MVP estático: nome, e-mail, senha, confirmação de senha, maioridade, aceite de termos/privacidade e opt-in de novidades. Ele também permite entrar novamente com a conta criada na mesma sessão do navegador.
+
+Esse fluxo não salva senha em texto e não cria usuário real. Ele existe para testar a experiência de conta antes do backend.
+
+Os requisitos atuais e futuros de conta estão em `luna_mvp_frontend/ACCOUNT_REQUIREMENTS.md`.
+
+## Login Com Google
+
+O frontend já possui integração com Google Identity Services no navegador. Para o botão funcionar, configure um OAuth 2.0 Client ID do tipo `Web application` e coloque o valor em `luna_mvp_frontend/scripts/auth-config.js`.
+
+Para testes locais, autorize estes origins no Google Cloud:
+
+```text
+http://localhost
+http://localhost:5173
+```
+
+Nesta fase, o login exibe nome/foto do usuário na sessão do navegador. A verificação segura do token, usuário real, sessão de servidor e persistência ficam para a etapa de backend.
 
 ## Como Rodar Localmente
 
@@ -75,11 +96,12 @@ http://localhost:5173
 
 - Backend.
 - Banco de dados.
-- Autenticação real.
+- Autenticação própria real.
+- Sessão real de servidor.
 - Pagamento real.
 - Integração com IA.
 - Memória persistente.
 
 ## Próxima Etapa Recomendada
 
-Validar o redesign desktop em navegador real, ajustar detalhes de texto e espaçamento, e só depois iniciar a fundação técnica de backend, autenticação, memória e IA.
+Criar a fundação técnica de backend para verificar o ID token do Google, persistir usuários, guardar histórico e começar a memória real da Luna sem perder a simplicidade do MVP.
