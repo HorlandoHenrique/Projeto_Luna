@@ -29,6 +29,11 @@ function addMessage(text, author) {
   messageList.scrollTop = messageList.scrollHeight;
 }
 
+function resizeComposer() {
+  input.style.height = "auto";
+  input.style.height = `${input.scrollHeight}px`;
+}
+
 function updateUsageState() {
   countEl.textContent = remainingMessages;
   usageCard.classList.toggle("is-low", remainingMessages > 0 && remainingMessages <= LOW_MESSAGE_THRESHOLD);
@@ -65,6 +70,7 @@ composer.addEventListener("submit", (event) => {
 
   addMessage(text, "user");
   input.value = "";
+  resizeComposer();
   remainingMessages -= 1;
   updateUsageState();
 
@@ -78,4 +84,14 @@ composer.addEventListener("submit", (event) => {
   replyAsLuna();
 });
 
+input.addEventListener("input", resizeComposer);
+
+input.addEventListener("keydown", (event) => {
+  if (event.key === "Enter" && !event.shiftKey) {
+    event.preventDefault();
+    composer.requestSubmit();
+  }
+});
+
 updateUsageState();
+resizeComposer();

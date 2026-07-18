@@ -39,7 +39,8 @@ body {
 }
 
 button,
-input {
+input,
+textarea {
   font: inherit;
 }
 
@@ -84,7 +85,7 @@ button {
 }
 
 .button:focus-visible,
-.composer input:focus-visible {
+.composer textarea:focus-visible {
   outline: 3px solid rgba(211, 138, 97, 0.28);
   outline-offset: 2px;
 }
@@ -110,6 +111,7 @@ button {
 }
 
 .button--send {
+  flex: 0 0 auto;
   padding: 0 22px;
   color: #211411;
   background: var(--accent);
@@ -179,6 +181,7 @@ button {
 .luna-panel,
 .chat-panel {
   min-height: 0;
+  min-width: 0;
 }
 
 /* Luna panel */
@@ -333,21 +336,50 @@ button {
   flex: 1;
   display: flex;
   min-height: 0;
+  min-width: 0;
+  max-width: 100%;
   flex-direction: column;
   gap: 10px;
+  overflow-x: hidden;
   overflow-y: auto;
   padding: 24px;
   background:
     radial-gradient(circle at 18% 18%, rgba(211, 138, 97, 0.08), transparent 18rem),
     linear-gradient(180deg, rgba(18, 12, 11, 0.18), rgba(18, 12, 11, 0));
+  scrollbar-color: rgba(211, 138, 97, 0.62) rgba(246, 232, 220, 0.06);
+  scrollbar-width: thin;
+}
+
+.message-list::-webkit-scrollbar {
+  width: 10px;
+}
+
+.message-list::-webkit-scrollbar-track {
+  background: rgba(246, 232, 220, 0.045);
+  border-radius: 999px;
+}
+
+.message-list::-webkit-scrollbar-thumb {
+  border: 2px solid rgba(32, 22, 20, 0.92);
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(211, 138, 97, 0.78), rgba(143, 85, 63, 0.78));
+}
+
+.message-list::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(226, 156, 112, 0.9), rgba(166, 97, 70, 0.9));
 }
 
 .message-bubble {
+  min-width: 0;
+  width: auto;
   max-width: min(70%, 560px);
   padding: 12px 15px;
   border-radius: 18px;
   font-size: 15px;
   line-height: 1.46;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+  word-break: normal;
   animation: message-in 170ms ease both;
 }
 
@@ -423,26 +455,39 @@ button {
 
 .composer {
   display: flex;
+  min-width: 0;
   gap: 10px;
 }
 
-.composer input {
+.composer textarea {
   min-width: 0;
+  max-width: 100%;
   flex: 1;
-  height: 48px;
-  padding: 0 16px;
+  min-height: 48px;
+  padding: 13px 16px;
   color: var(--ink);
   border: 1px solid var(--line);
-  border-radius: 999px;
+  border-radius: 24px;
   outline: none;
   background: rgba(246, 232, 220, 0.075);
+  line-height: 1.45;
+  resize: none;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+  word-break: normal;
+  scrollbar-width: none;
 }
 
-.composer input::placeholder {
+.composer textarea::-webkit-scrollbar {
+  display: none;
+}
+
+.composer textarea::placeholder {
   color: rgba(214, 192, 179, 0.64);
 }
 
-.composer input:focus {
+.composer textarea:focus {
   border-color: rgba(211, 138, 97, 0.56);
   background: rgba(246, 232, 220, 0.1);
 }
@@ -549,8 +594,9 @@ button {
     font-size: 22px;
   }
 
-  .composer input {
-    height: 42px;
+  .composer textarea {
+    min-height: 42px;
+    padding-block: 10px;
   }
 
   .button {
