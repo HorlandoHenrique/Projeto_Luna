@@ -1,5 +1,17 @@
 # MVP
 
+O MVP deve ser pequeno, porém extremamente polido.
+
+Prioridades:
+
+- personalidade
+- aparência
+- chat
+- memória básica
+- interface bonita
+
+Não lançar produto cheio de funcionalidades mal feitas.
+
 Frontend:
 
 - foto da Luna

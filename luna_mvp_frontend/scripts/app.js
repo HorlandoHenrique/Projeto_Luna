@@ -18,16 +18,35 @@ const authPanels = document.querySelectorAll("[data-auth-panel]");
 const signupForm = document.querySelector("#signup-form");
 const signinForm = document.querySelector("#signin-form");
 const forgotPasswordButton = document.querySelector("#forgot-password-button");
+const subscribeButton = document.querySelector("#subscribe-button");
+const premiumButton = document.querySelector("#premium-button");
+const subscriptionOverlay = document.querySelector("#subscription-overlay");
+const subscriptionClose = document.querySelector("#subscription-close");
+const paymentTabs = document.querySelectorAll("[data-payment-method]");
+const paymentPanels = document.querySelectorAll("[data-payment-panel]");
+const planOptions = document.querySelectorAll(".plan-option");
+const subscriptionSubmit = document.querySelector("#subscription-submit");
+const subscriptionTerms = document.querySelector("#subscription-terms");
+const paymentHint = document.querySelector("#payment-hint");
+const cardPaymentForm = document.querySelector("#card-payment-form");
+const pixPaymentForm = document.querySelector("#pix-payment-form");
+const cardNumberInput = document.querySelector("#card-number");
+const cardExpiryInput = document.querySelector("#card-expiry");
+const cardCpfInput = document.querySelector("#card-cpf");
+const pixCpfInput = document.querySelector("#pix-cpf");
+const pixCode = document.querySelector("#pix-code");
 
 const DAILY_MESSAGE_LIMIT = 20;
 const LOW_MESSAGE_THRESHOLD = 5;
 const AUTH_PROFILE_STORAGE_KEY = "luna_auth_profile";
 const SITE_ACCOUNT_STORAGE_KEY = "luna_site_demo_account";
+const SUBSCRIPTION_STORAGE_KEY = "luna_subscription_demo";
 const LEGACY_GOOGLE_STORAGE_KEY = "luna_google_profile";
 const GOOGLE_CLIENT_ID_PLACEHOLDER = "COLE_SEU_GOOGLE_CLIENT_ID_AQUI.apps.googleusercontent.com";
 
 let remainingMessages = DAILY_MESSAGE_LIMIT;
 let googleAuthInitialized = false;
+let selectedPaymentMethod = "card";
 
 const lunaReplies = [
   "entendi. me fala um pouco mais disso.",
@@ -38,6 +57,17 @@ const lunaReplies = [
   "isso parece pequeno, mas diz bastante.",
   "me conta do seu jeito. não precisa arrumar tudo antes."
 ];
+
+const subscriptionPlans = {
+  monthly: {
+    label: "Mensal",
+    price: "R$ 19,90"
+  },
+  yearly: {
+    label: "Anual",
+    price: "R$ 179,90"
+  }
+};
 
 function addMessage(text, author) {
   const message = document.createElement("div");
@@ -177,6 +207,183 @@ function loadStoredProfile() {
 
 function loadSiteAccount() {
   return readSessionJson(SITE_ACCOUNT_STORAGE_KEY);
+}
+
+function loadSubscription() {
+  return readSessionJson(SUBSCRIPTION_STORAGE_KEY);
+}
+
+function getSelectedPlan() {
+  return document.querySelector("input[name='subscriptionPlan']:checked")?.value || "monthly";
+}
+
+function formatDigitGroups(value, groupSizes) {
+  const digits = value.replace(/\D/g, "");
+  const groups = [];
+  let cursor = 0;
+
+  groupSizes.forEach((size) => {
+    const group = digits.slice(cursor, cursor + size);
+
+    if (group) {
+      groups.push(group);
+    }
+
+    cursor += size;
+  });
+
+  return groups.join(" ");
+}
+
+function formatCpf(value) {
+  const digits = value.replace(/\D/g, "").slice(0, 11);
+  const first = digits.slice(0, 3);
+  const second = digits.slice(3, 6);
+  const third = digits.slice(6, 9);
+  const last = digits.slice(9, 11);
+
+  if (digits.length > 9) {
+    return `${first}.${second}.${third}-${last}`;
+  }
+
+  if (digits.length > 6) {
+    return `${first}.${second}.${third}`;
+  }
+
+  if (digits.length > 3) {
+    return `${first}.${second}`;
+  }
+
+  return first;
+}
+
+function formatExpiry(value) {
+  const digits = value.replace(/\D/g, "").slice(0, 4);
+
+  if (digits.length <= 2) {
+    return digits;
+  }
+
+  return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+}
+
+function setPaymentHint(message, status = "default") {
+  paymentHint.textContent = message;
+  paymentHint.classList.toggle("is-success", status === "success");
+  paymentHint.classList.toggle("is-warning", status === "warning");
+}
+
+function setPaymentMethod(method) {
+  selectedPaymentMethod = method;
+
+  paymentTabs.forEach((tab) => {
+    const isActive = tab.dataset.paymentMethod === method;
+    tab.classList.toggle("is-active", isActive);
+    tab.setAttribute("aria-selected", String(isActive));
+  });
+
+  paymentPanels.forEach((panel) => {
+    panel.hidden = panel.dataset.paymentPanel !== method;
+  });
+
+  setPaymentHint(method === "card" ? "Preencha os dados do cartão de teste." : "O Pix abaixo é apenas um código visual de teste.");
+}
+
+function updateSelectedPlan() {
+  const selectedPlan = getSelectedPlan();
+  const plan = subscriptionPlans[selectedPlan];
+
+  planOptions.forEach((option) => {
+    option.classList.toggle("is-selected", option.querySelector("input")?.value === selectedPlan);
+  });
+
+  pixCode.textContent = selectedPlan === "yearly" ? "LUNA.PIX.BETA.17990.TESTE" : "LUNA.PIX.BETA.1990.TESTE";
+  subscriptionSubmit.textContent = `Confirmar ${plan.label.toLowerCase()} de teste`;
+}
+
+function getActivePaymentForm() {
+  return selectedPaymentMethod === "pix" ? pixPaymentForm : cardPaymentForm;
+}
+
+function openSubscriptionModal() {
+  subscriptionOverlay.hidden = false;
+  document.body.classList.add("is-modal-open");
+  loginPanel.hidden = true;
+  loginButton.setAttribute("aria-expanded", "false");
+  updateSelectedPlan();
+  prefillSubscriptionIdentity();
+  setPaymentMethod(selectedPaymentMethod);
+}
+
+function closeSubscriptionModal() {
+  subscriptionOverlay.hidden = true;
+  document.body.classList.remove("is-modal-open");
+}
+
+function prefillSubscriptionIdentity() {
+  const profile = loadStoredProfile();
+
+  if (!profile) {
+    return;
+  }
+
+  const displayName = getDisplayName(profile);
+  const cardNameInput = document.querySelector("#card-name");
+  const pixNameInput = document.querySelector("#pix-name");
+  const pixEmailInput = document.querySelector("#pix-email");
+
+  if (displayName && !cardNameInput.value) {
+    cardNameInput.value = displayName;
+  }
+
+  if (displayName && !pixNameInput.value) {
+    pixNameInput.value = displayName;
+  }
+
+  if (profile.email && !pixEmailInput.value) {
+    pixEmailInput.value = profile.email;
+  }
+}
+
+function renderSubscriptionState(subscription) {
+  if (!subscription) {
+    subscribeButton.textContent = "Assinar";
+    premiumButton.textContent = "Entrar na lista premium";
+    return;
+  }
+
+  const plan = subscriptionPlans[subscription.plan] || subscriptionPlans.monthly;
+  subscribeButton.textContent = "Assinatura ativa";
+  premiumButton.textContent = `${plan.label} ativo`;
+  usageHint.textContent = `Assinatura ${plan.label.toLowerCase()} de teste ativa nesta sessão.`;
+}
+
+function handleSubscriptionSubmit() {
+  const activeForm = getActivePaymentForm();
+
+  if (!activeForm.reportValidity()) {
+    setPaymentHint("Revise os campos do pagamento de teste.", "warning");
+    return;
+  }
+
+  if (!subscriptionTerms.checked) {
+    setPaymentHint("Confirme que este pagamento é apenas uma simulação visual.", "warning");
+    subscriptionTerms.reportValidity();
+    return;
+  }
+
+  const plan = getSelectedPlan();
+  const subscription = {
+    plan,
+    paymentMethod: selectedPaymentMethod,
+    startedAt: new Date().toISOString()
+  };
+
+  window.sessionStorage.setItem(SUBSCRIPTION_STORAGE_KEY, JSON.stringify(subscription));
+  renderSubscriptionState(subscription);
+  setPaymentHint("Assinatura de teste ativada nesta sessão.", "success");
+
+  window.setTimeout(closeSubscriptionModal, 800);
 }
 
 function getPublicSiteProfile(account) {
@@ -349,6 +556,14 @@ function updateUsageState() {
     return;
   }
 
+  const subscription = loadSubscription();
+
+  if (subscription) {
+    const plan = subscriptionPlans[subscription.plan] || subscriptionPlans.monthly;
+    usageHint.textContent = `Assinatura ${plan.label.toLowerCase()} de teste ativa nesta sessão.`;
+    return;
+  }
+
   usageHint.textContent = "Este limite é apenas uma simulação do MVP.";
 }
 
@@ -407,6 +622,58 @@ forgotPasswordButton.addEventListener("click", () => {
   setLoginHint("Recuperação de senha entra na etapa de backend.", true);
 });
 
+subscribeButton.addEventListener("click", openSubscriptionModal);
+premiumButton.addEventListener("click", openSubscriptionModal);
+subscriptionClose.addEventListener("click", closeSubscriptionModal);
+
+subscriptionOverlay.addEventListener("click", (event) => {
+  if (event.target === subscriptionOverlay) {
+    closeSubscriptionModal();
+  }
+});
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && !subscriptionOverlay.hidden) {
+    closeSubscriptionModal();
+  }
+});
+
+paymentTabs.forEach((tab) => {
+  tab.addEventListener("click", () => {
+    setPaymentMethod(tab.dataset.paymentMethod);
+  });
+});
+
+planOptions.forEach((option) => {
+  option.addEventListener("change", updateSelectedPlan);
+});
+
+cardNumberInput.addEventListener("input", () => {
+  cardNumberInput.value = formatDigitGroups(cardNumberInput.value, [4, 4, 4, 4]);
+});
+
+cardExpiryInput.addEventListener("input", () => {
+  cardExpiryInput.value = formatExpiry(cardExpiryInput.value);
+});
+
+[cardCpfInput, pixCpfInput].forEach((cpfInput) => {
+  cpfInput.addEventListener("input", () => {
+    cpfInput.value = formatCpf(cpfInput.value);
+  });
+});
+
+cardPaymentForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  handleSubscriptionSubmit();
+});
+
+pixPaymentForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  handleSubscriptionSubmit();
+});
+
+subscriptionSubmit.addEventListener("click", handleSubscriptionSubmit);
+
 logoutButton.addEventListener("click", () => {
   window.sessionStorage.removeItem(AUTH_PROFILE_STORAGE_KEY);
   window.sessionStorage.removeItem(LEGACY_GOOGLE_STORAGE_KEY);
@@ -416,6 +683,8 @@ logoutButton.addEventListener("click", () => {
 
 updateUsageState();
 resizeComposer();
+updateSelectedPlan();
+renderSubscriptionState(loadSubscription());
 
 const storedProfile = loadStoredProfile();
 

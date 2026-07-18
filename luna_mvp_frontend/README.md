@@ -13,6 +13,7 @@ luna_mvp_frontend/
 |   |-- luna-site-profile-wide.jpg
 |   `-- luna-site-profile.jpg
 |-- ACCOUNT_REQUIREMENTS.md
+|-- SUBSCRIPTION_REQUIREMENTS.md
 |-- scripts/
 |   |-- auth-config.js
 |   `-- app.js
@@ -50,7 +51,7 @@ A tela atual é um site desktop-first:
 - tema escuro quente;
 - contador de mensagens;
 - cadastro próprio simulado, entrada simulada e login com Google opcional;
-- assinatura simulada.
+- assinatura simulada com cartão de crédito e Pix visuais.
 
 O mobile continua responsivo, mas não é o foco visual principal.
 
@@ -70,6 +71,14 @@ O frontend possui um fluxo de conta para o MVP estático:
 Nesta fase, o cadastro próprio não salva senha em texto e não cria usuário real. Os dados usados para a simulação ficam apenas em `sessionStorage`.
 
 Os requisitos de conta agora e futuros estão em `ACCOUNT_REQUIREMENTS.md`.
+
+## Assinatura
+
+O botão `Assinar` abre um espaço de assinatura visual com plano mensal, plano anual, cartão de crédito e Pix.
+
+Nesta fase, nenhum pagamento é processado. O frontend valida os campos, marca uma assinatura de teste na sessão do navegador e não salva número de cartão, CVV, CPF ou dados de Pix.
+
+Os requisitos de assinatura agora e futuros estão em `SUBSCRIPTION_REQUIREMENTS.md`.
 
 ## Login Com Google
 

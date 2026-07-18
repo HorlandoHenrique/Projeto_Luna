@@ -29,7 +29,7 @@ O frontend é um site desktop-first, estático, feito apenas com HTML, CSS e Jav
 
 Ele contém:
 
-- cabeçalho horizontal com nome Luna, status beta, cadastro próprio simulado, login com Google opcional e assinatura visual;
+- cabeçalho horizontal com nome Luna, status beta, cadastro próprio simulado, login com Google opcional e assinatura visual com cartão/Pix;
 - seção principal em duas colunas, pensada primeiro para notebook e desktop;
 - tema escuro quente, sem brilho artificial e sem aparência de aplicativo mobile;
 - painel esquerdo com foto grande da Luna e apresentação curta;
@@ -53,6 +53,14 @@ O frontend possui cadastro próprio simulado para o MVP estático: nome, e-mail,
 Esse fluxo não salva senha em texto e não cria usuário real. Ele existe para testar a experiência de conta antes do backend.
 
 Os requisitos atuais e futuros de conta estão em `luna_mvp_frontend/ACCOUNT_REQUIREMENTS.md`.
+
+## Assinatura
+
+O frontend possui um espaço de assinatura simulado acionado pelo botão `Assinar`. Ele permite escolher plano mensal ou anual e alternar entre cartão de crédito e Pix.
+
+Nenhum pagamento real é processado nesta fase. O fluxo existe para testar a experiência e preparar os requisitos antes da integração com backend e provedor de pagamento.
+
+Os requisitos atuais e futuros de assinatura estão em `luna_mvp_frontend/SUBSCRIPTION_REQUIREMENTS.md`.
 
 ## Login Com Google
 

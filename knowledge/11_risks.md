@@ -18,3 +18,12 @@ Longo prazo:
 - dependência de plataformas
 - regulamentação
 - fragmentação da personagem
+
+Riscos de produto:
+
+- focar primeiro em tecnologia
+- adicionar dezenas de funcionalidades antes do núcleo funcionar
+- trocar aparência frequentemente
+- trocar personalidade frequentemente
+- depender de algoritmo de rede social
+- lançar experiência ruim ao público

@@ -88,6 +88,9 @@ button {
 .account-form input:focus-visible,
 .account-tab:focus-visible,
 .account-link:focus-visible,
+.modal-close:focus-visible,
+.payment-form input:focus-visible,
+.payment-tab:focus-visible,
 .composer textarea:focus-visible {
   outline: 3px solid rgba(211, 138, 97, 0.28);
   outline-offset: 2px;
@@ -396,6 +399,273 @@ button {
   background: transparent;
   font-size: 12px;
   font-weight: 800;
+}
+
+/* Subscription */
+body.is-modal-open {
+  overflow: hidden;
+}
+
+.subscription-overlay[hidden] {
+  display: none;
+}
+
+.subscription-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(18, 12, 11, 0.74);
+  backdrop-filter: blur(14px);
+}
+
+.subscription-modal {
+  width: min(920px, 100%);
+  max-height: min(760px, calc(100dvh - 48px));
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
+  border: 1px solid var(--line-strong);
+  border-radius: 28px;
+  background:
+    linear-gradient(180deg, rgba(246, 232, 220, 0.075), rgba(246, 232, 220, 0.025)),
+    rgba(36, 25, 23, 0.98);
+  box-shadow: var(--shadow);
+}
+
+.subscription-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 20px 22px 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.subscription-header h2 {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(30px, 4vw, 44px);
+  line-height: 0.96;
+  letter-spacing: -0.045em;
+}
+
+.modal-close {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+  color: var(--muted-strong);
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: rgba(246, 232, 220, 0.055);
+  font-size: 25px;
+  line-height: 1;
+}
+
+.subscription-body {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(240px, 0.82fr) minmax(0, 1.18fr);
+  gap: 18px;
+  overflow: auto;
+  padding: 18px;
+  scrollbar-color: rgba(211, 138, 97, 0.62) rgba(246, 232, 220, 0.06);
+  scrollbar-width: thin;
+}
+
+.subscription-body::-webkit-scrollbar {
+  width: 10px;
+}
+
+.subscription-body::-webkit-scrollbar-track {
+  background: rgba(246, 232, 220, 0.045);
+  border-radius: 999px;
+}
+
+.subscription-body::-webkit-scrollbar-thumb {
+  border: 2px solid rgba(32, 22, 20, 0.96);
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(211, 138, 97, 0.78), rgba(143, 85, 63, 0.78));
+}
+
+.subscription-body::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(226, 156, 112, 0.9), rgba(166, 97, 70, 0.9));
+}
+
+.plan-section,
+.payment-section {
+  min-width: 0;
+}
+
+.plan-section {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+}
+
+.plan-option {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 13px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(246, 232, 220, 0.045);
+}
+
+.plan-option.is-selected {
+  border-color: rgba(211, 138, 97, 0.56);
+  background: rgba(211, 138, 97, 0.11);
+}
+
+.plan-option input {
+  accent-color: var(--accent);
+}
+
+.plan-option strong,
+.plan-option small {
+  display: block;
+}
+
+.plan-option strong {
+  font-size: 15px;
+}
+
+.plan-option small {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.plan-option em {
+  justify-self: end;
+  padding: 5px 8px;
+  color: var(--accent);
+  border: 1px solid rgba(211, 138, 97, 0.22);
+  border-radius: 999px;
+  background: rgba(211, 138, 97, 0.08);
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.subscription-perks {
+  display: grid;
+  gap: 8px;
+  margin: 6px 0 0;
+  padding: 12px 14px;
+  color: var(--muted-strong);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(18, 12, 11, 0.16);
+  font-size: 13px;
+  line-height: 1.42;
+  list-style-position: inside;
+}
+
+.payment-section {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+}
+
+.payment-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(246, 232, 220, 0.045);
+}
+
+.payment-tab {
+  min-height: 36px;
+  padding: 0 12px;
+  color: var(--muted);
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.payment-tab.is-active {
+  color: #211411;
+  background: var(--accent);
+}
+
+.payment-form {
+  display: grid;
+  gap: 10px;
+}
+
+.payment-form[hidden] {
+  display: none;
+}
+
+.pix-preview {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(246, 232, 220, 0.045);
+}
+
+.pix-qr {
+  width: 74px;
+  height: 74px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+  padding: 8px;
+  border-radius: 12px;
+  background: #f6e8dc;
+}
+
+.pix-qr span {
+  border-radius: 4px;
+  background: #241917;
+}
+
+.pix-preview code {
+  min-width: 0;
+  color: var(--muted-strong);
+  font-size: 12px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.subscription-terms {
+  margin-top: 2px;
+}
+
+.payment-hint {
+  min-height: 20px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.42;
+}
+
+.payment-hint.is-success {
+  color: var(--success);
+}
+
+.payment-hint.is-warning {
+  color: var(--warning);
+}
+
+.subscription-submit {
+  width: 100%;
 }
 
 /* Main layout */
@@ -874,6 +1144,10 @@ button {
   .usage-card p {
     max-width: 18rem;
   }
+
+  .subscription-body {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 560px) {
@@ -911,6 +1185,37 @@ button {
   .account-row {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .subscription-overlay {
+    align-items: start;
+    padding: 10px;
+  }
+
+  .subscription-modal {
+    max-height: calc(100dvh - 20px);
+    border-radius: 22px;
+  }
+
+  .subscription-header {
+    padding: 16px;
+  }
+
+  .subscription-body {
+    padding: 14px;
+  }
+
+  .plan-option {
+    grid-template-columns: auto 1fr;
+  }
+
+  .plan-option em {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .pix-preview {
+    grid-template-columns: 1fr;
   }
 
   .site-actions .button,
