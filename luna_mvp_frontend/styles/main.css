@@ -118,6 +118,10 @@ button {
 
 .button--send {
   flex: 0 0 auto;
+  align-self: flex-end;
+  min-width: 104px;
+  height: 48px;
+  min-height: 48px;
   padding: 0 22px;
   color: #211411;
   background: var(--accent);
@@ -890,6 +894,13 @@ body.is-modal-open {
   background: rgba(246, 232, 220, 0.08);
 }
 
+.message-bubble--typing {
+  min-width: 98px;
+  color: rgba(246, 232, 220, 0.72);
+  font-style: italic;
+  letter-spacing: 0;
+}
+
 .message-bubble--user {
   align-self: flex-end;
   color: #211411;
@@ -898,10 +909,13 @@ body.is-modal-open {
 }
 
 .chat-panel__footer {
+  flex: 0 0 auto;
   display: grid;
   grid-template-columns: minmax(170px, 220px) minmax(0, 1fr);
   gap: 10px;
-  align-items: center;
+  align-items: end;
+  max-height: 176px;
+  overflow: hidden;
   padding: 14px;
   border-top: 1px solid var(--line);
   background: rgba(32, 22, 20, 0.9);
@@ -954,7 +968,10 @@ body.is-modal-open {
 
 .composer {
   display: flex;
+  align-items: flex-end;
+  max-height: 132px;
   min-width: 0;
+  overflow: hidden;
   gap: 10px;
 }
 
@@ -962,24 +979,54 @@ body.is-modal-open {
   min-width: 0;
   max-width: 100%;
   flex: 1;
+  height: 48px;
   min-height: 48px;
+  max-height: 132px !important;
   padding: 13px 16px;
   color: var(--ink);
-  border: 1px solid var(--line);
+  border: 0;
   border-radius: 24px;
   outline: none;
-  background: rgba(246, 232, 220, 0.075);
+  background: rgba(246, 232, 220, 0.06);
   line-height: 1.45;
   resize: none;
-  overflow: hidden;
-  overflow-wrap: break-word;
+  overflow-x: hidden;
+  overflow-y: hidden !important;
+  overflow-wrap: anywhere;
+  overscroll-behavior: contain;
   white-space: pre-wrap;
-  word-break: normal;
+  word-break: break-word;
+  scrollbar-color: transparent transparent;
   scrollbar-width: none;
 }
 
+.composer textarea.is-scrollable {
+  overflow-y: auto !important;
+  padding-right: 12px;
+  scrollbar-color: rgba(211, 138, 97, 0.54) transparent;
+  scrollbar-width: thin;
+}
+
 .composer textarea::-webkit-scrollbar {
-  display: none;
+  width: 0;
+}
+
+.composer textarea.is-scrollable::-webkit-scrollbar {
+  width: 6px;
+}
+
+.composer textarea::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 999px;
+}
+
+.composer textarea::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(211, 138, 97, 0.54);
+}
+
+.composer textarea::-webkit-scrollbar-thumb:hover {
+  background: rgba(226, 156, 112, 0.72);
 }
 
 .composer textarea::placeholder {
@@ -987,8 +1034,7 @@ body.is-modal-open {
 }
 
 .composer textarea:focus {
-  border-color: rgba(211, 138, 97, 0.56);
-  background: rgba(246, 232, 220, 0.1);
+  background: rgba(246, 232, 220, 0.085);
 }
 
 @keyframes message-in {
@@ -1095,7 +1141,13 @@ body.is-modal-open {
 
   .composer textarea {
     min-height: 42px;
+    max-height: 112px !important;
     padding-block: 10px;
+  }
+
+  .button--send {
+    height: 42px;
+    min-height: 42px;
   }
 
   .button {
@@ -1162,6 +1214,14 @@ body.is-modal-open {
     flex-direction: column;
   }
 
+  .composer {
+    max-height: 170px;
+  }
+
+  .composer textarea {
+    max-height: 104px !important;
+  }
+
   .site-actions {
     width: 100%;
   }
@@ -1223,6 +1283,10 @@ body.is-modal-open {
   .composer .button {
     width: 100%;
     min-height: 46px;
+  }
+
+  .composer .button {
+    height: 46px;
   }
 
   .luna-photo-card,

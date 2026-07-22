@@ -38,15 +38,27 @@ const pixCode = document.querySelector("#pix-code");
 
 const DAILY_MESSAGE_LIMIT = 20;
 const LOW_MESSAGE_THRESHOLD = 5;
+const COMPOSER_MAX_TEXTAREA_HEIGHT = 132;
+const LUNA_TYPING_MIN_DELAY_MS = 900;
+const LUNA_TYPING_MAX_DELAY_MS = 5400;
+const LUNA_TYPING_DOT_INTERVAL_MS = 520;
+const LUNA_LEARNED_WORD_SLIP_RATE = 0.08;
+const LUNA_MANUAL_CORRECTION_SKIP_RATE = 0.02;
 const AUTH_PROFILE_STORAGE_KEY = "luna_auth_profile";
 const SITE_ACCOUNT_STORAGE_KEY = "luna_site_demo_account";
 const SUBSCRIPTION_STORAGE_KEY = "luna_subscription_demo";
 const LEGACY_GOOGLE_STORAGE_KEY = "luna_google_profile";
 const GOOGLE_CLIENT_ID_PLACEHOLDER = "COLE_SEU_GOOGLE_CLIENT_ID_AQUI.apps.googleusercontent.com";
+const LUNA_FINAL_PERIOD_TONES = new Set(["dry", "sarcastic", "angry", "upset", "argument"]);
+const LUNA_PRECISE_TYPING_TONES = new Set(["serious", "very-serious", "angry", "upset", "argument"]);
+const LUNA_LEARNED_LOWERCASE_WORDS = new Set(["vc", "ce", "pq", "n", "mds", "rs"]);
 
 let remainingMessages = DAILY_MESSAGE_LIMIT;
 let googleAuthInitialized = false;
 let selectedPaymentMethod = "card";
+let isLunaTyping = false;
+let lunaTypingIndicator = null;
+let lunaTypingDotTimer = null;
 
 const lunaReplies = [
   "entendi. me fala um pouco mais disso.",
@@ -54,8 +66,26 @@ const lunaReplies = [
   "faz sentido. fiquei curiosa com essa parte.",
   "acho que eu te perguntaria o que ficou depois disso.",
   "tô aqui lendo com calma.",
-  "isso parece pequeno, mas diz bastante.",
-  "me conta do seu jeito. não precisa arrumar tudo antes."
+  "mds, isso parece pequeno, mas diz bastante.",
+  "me conta do seu jeito. não precisa arrumar tudo antes.",
+  "vc fala disso de um jeito que dá vontade de entender melhor.",
+  "o que me pegou foi o jeito que vc falou isso.",
+  "não sei por que, mas isso ficou na minha cabeça."
+];
+
+const lunaSeriousReplies = [
+  {
+    text: "Entendi. Vou falar com calma porque isso parece importante.",
+    tone: "serious"
+  },
+  {
+    text: "Eu não quero brincar com isso agora. Me explica direito o que aconteceu.",
+    tone: "serious"
+  },
+  {
+    text: "Tá. Vou prestar atenção no que você está me falando.",
+    tone: "serious"
+  }
 ];
 
 const subscriptionPlans = {
@@ -69,17 +99,208 @@ const subscriptionPlans = {
   }
 };
 
+function scrollMessagesToBottom() {
+  messageList.scrollTop = messageList.scrollHeight;
+}
+
 function addMessage(text, author) {
   const message = document.createElement("div");
   message.className = `message-bubble message-bubble--${author}`;
   message.textContent = text;
   messageList.appendChild(message);
-  messageList.scrollTop = messageList.scrollHeight;
+  scrollMessagesToBottom();
+}
+
+function shouldUsePreciseTyping(tone) {
+  return LUNA_PRECISE_TYPING_TONES.has(tone);
+}
+
+function shouldKeepKeyboardSlip(lowerToken) {
+  const keyboardLearnedWord = LUNA_LEARNED_LOWERCASE_WORDS.has(lowerToken);
+
+  return (
+    (keyboardLearnedWord && Math.random() < LUNA_LEARNED_WORD_SLIP_RATE) ||
+    Math.random() < LUNA_MANUAL_CORRECTION_SKIP_RATE
+  );
+}
+
+function getLunaReplyConfig(candidate) {
+  if (typeof candidate === "string") {
+    return {
+      text: candidate,
+      tone: "normal"
+    };
+  }
+
+  return {
+    text: candidate.text || "",
+    tone: candidate.tone || "normal"
+  };
+}
+
+function normalizeSearchText(text) {
+  return text
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .toLocaleLowerCase("pt-BR");
+}
+
+function hasSeriousContext(text) {
+  const normalizedText = normalizeSearchText(text);
+
+  return [
+    "serio",
+    "seria",
+    "triste",
+    "chatead",
+    "raiva",
+    "brav",
+    "briguei",
+    "briga",
+    "discuti",
+    "discussao",
+    "mago",
+    "preocup",
+    "ansiedade",
+    "medo",
+    "morreu",
+    "morte",
+    "doente",
+    "hospital"
+  ].some((keyword) => normalizedText.includes(keyword));
+}
+
+function chooseLunaReply(userText = "") {
+  const replyPool = hasSeriousContext(userText) ? lunaSeriousReplies : lunaReplies;
+
+  return replyPool[Math.floor(Math.random() * replyPool.length)];
+}
+
+function applyCasualAbbreviations(text) {
+  return text
+    .replace(/(^|[^\p{L}])o\s+qu[eê](?=$|[^\p{L}])/giu, "$1o q")
+    .replace(/(^|[^\p{L}])por\s+qu[eê](?=$|[^\p{L}])/giu, "$1pq")
+    .replace(/(^|[^\p{L}])porqu[eê]s?(?=$|[^\p{L}])/giu, "$1pq");
+}
+
+function preserveLearnedCasualAbbreviations(text) {
+  return text
+    .replace(/(^|[.!?]\s+)O q(?=$|[\s,?!])/g, "$1o q")
+    .replace(/(^|[.!?]\s+)Pq(?=$|[\s,?!])/g, "$1pq");
+}
+
+function capitalizeSentenceStarts(text, allowKeyboardSlips = true) {
+  let shouldCapitalize = true;
+
+  return text.replace(/\p{L}+|[.!?]+/gu, (token) => {
+    if (/^[.!?]+$/.test(token)) {
+      shouldCapitalize = true;
+      return token;
+    }
+
+    if (!shouldCapitalize) {
+      return token;
+    }
+
+    shouldCapitalize = false;
+
+    const lowerToken = token.toLocaleLowerCase("pt-BR");
+
+    if (allowKeyboardSlips && shouldKeepKeyboardSlip(lowerToken)) {
+      return lowerToken;
+    }
+
+    return `${token.charAt(0).toLocaleUpperCase("pt-BR")}${token.slice(1)}`;
+  });
+}
+
+function removeCasualFinalPeriod(text, tone) {
+  const trimmedText = text.trim();
+
+  if (LUNA_FINAL_PERIOD_TONES.has(tone) || !trimmedText.endsWith(".") || trimmedText.endsWith("...")) {
+    return trimmedText;
+  }
+
+  return trimmedText.slice(0, -1).trimEnd();
+}
+
+function normalizeLunaReply(candidate) {
+  const replyConfig = getLunaReplyConfig(candidate);
+  const preciseTyping = shouldUsePreciseTyping(replyConfig.tone);
+  const baseText = replyConfig.text.trim();
+  const textWithVocabulary = preciseTyping ? baseText : applyCasualAbbreviations(baseText);
+  const capitalizedText = capitalizeSentenceStarts(textWithVocabulary, !preciseTyping);
+  const keyboardStyledText = preciseTyping ? capitalizedText : preserveLearnedCasualAbbreviations(capitalizedText);
+
+  return removeCasualFinalPeriod(keyboardStyledText, replyConfig.tone);
+}
+
+function updateComposerAvailability() {
+  const isEmpty = remainingMessages === 0;
+  input.disabled = isEmpty;
+  sendButton.disabled = isEmpty || isLunaTyping;
+}
+
+function getTypingDelay(text) {
+  const words = text.trim().split(/\s+/).filter(Boolean).length;
+  const punctuationMarks = text.match(/[,.!?;:]/g)?.length || 0;
+  const calculatedDelay = 680 + text.length * 34 + words * 58 + punctuationMarks * 120;
+
+  return Math.min(
+    LUNA_TYPING_MAX_DELAY_MS,
+    Math.max(LUNA_TYPING_MIN_DELAY_MS, calculatedDelay)
+  );
+}
+
+function setTypingIndicatorText(dotCount) {
+  if (!lunaTypingIndicator) {
+    return;
+  }
+
+  lunaTypingIndicator.textContent = `digitando${".".repeat(dotCount)}`;
+}
+
+function showLunaTypingIndicator() {
+  let dotCount = 1;
+  lunaTypingIndicator = document.createElement("div");
+  lunaTypingIndicator.className = "message-bubble message-bubble--luna message-bubble--typing";
+  lunaTypingIndicator.setAttribute("role", "status");
+  lunaTypingIndicator.setAttribute("aria-label", "Luna está digitando");
+  setTypingIndicatorText(dotCount);
+  messageList.appendChild(lunaTypingIndicator);
+  scrollMessagesToBottom();
+
+  lunaTypingDotTimer = window.setInterval(() => {
+    dotCount = dotCount === 3 ? 1 : dotCount + 1;
+    setTypingIndicatorText(dotCount);
+  }, LUNA_TYPING_DOT_INTERVAL_MS);
+}
+
+function hideLunaTypingIndicator() {
+  if (lunaTypingDotTimer) {
+    window.clearInterval(lunaTypingDotTimer);
+    lunaTypingDotTimer = null;
+  }
+
+  if (lunaTypingIndicator) {
+    lunaTypingIndicator.remove();
+    lunaTypingIndicator = null;
+  }
 }
 
 function resizeComposer() {
+  const cssMaxHeight = Number.parseFloat(window.getComputedStyle(input).maxHeight);
+  const maxHeight = Number.isFinite(cssMaxHeight) ? cssMaxHeight : COMPOSER_MAX_TEXTAREA_HEIGHT;
+
+  input.style.maxHeight = `${maxHeight}px`;
   input.style.height = "auto";
-  input.style.height = `${input.scrollHeight}px`;
+
+  const shouldScroll = input.scrollHeight > maxHeight;
+  const nextHeight = Math.min(input.scrollHeight, maxHeight);
+
+  input.style.height = `${nextHeight}px`;
+  input.style.overflowY = shouldScroll ? "auto" : "hidden";
+  input.classList.toggle("is-scrollable", shouldScroll);
 }
 
 function normalizeEmail(email) {
@@ -546,13 +767,13 @@ function updateUsageState() {
 
   if (remainingMessages === 0) {
     usageHint.textContent = "As mensagens acabaram nesta simulação. A assinatura ainda não está ativa.";
-    input.disabled = true;
-    sendButton.disabled = true;
+    updateComposerAvailability();
     return;
   }
 
   if (remainingMessages <= LOW_MESSAGE_THRESHOLD) {
     usageHint.textContent = "Você está chegando ao limite simulado do beta.";
+    updateComposerAvailability();
     return;
   }
 
@@ -561,15 +782,33 @@ function updateUsageState() {
   if (subscription) {
     const plan = subscriptionPlans[subscription.plan] || subscriptionPlans.monthly;
     usageHint.textContent = `Assinatura ${plan.label.toLowerCase()} de teste ativa nesta sessão.`;
+    updateComposerAvailability();
     return;
   }
 
   usageHint.textContent = "Este limite é apenas uma simulação do MVP.";
+  updateComposerAvailability();
 }
 
-function replyAsLuna() {
-  const reply = lunaReplies[Math.floor(Math.random() * lunaReplies.length)];
-  window.setTimeout(() => addMessage(reply, "luna"), 520);
+function replyAsLuna(forcedReply = "", userText = "") {
+  if (isLunaTyping) {
+    return;
+  }
+
+  const rawReply = forcedReply || chooseLunaReply(userText);
+  const reply = normalizeLunaReply(rawReply);
+  const typingDelay = getTypingDelay(reply);
+
+  isLunaTyping = true;
+  updateComposerAvailability();
+  showLunaTypingIndicator();
+
+  window.setTimeout(() => {
+    hideLunaTypingIndicator();
+    addMessage(reply, "luna");
+    isLunaTyping = false;
+    updateUsageState();
+  }, typingDelay);
 }
 
 composer.addEventListener("submit", (event) => {
@@ -577,7 +816,7 @@ composer.addEventListener("submit", (event) => {
 
   const text = input.value.trim();
 
-  if (!text || remainingMessages <= 0) {
+  if (!text || remainingMessages <= 0 || isLunaTyping) {
     return;
   }
 
@@ -588,16 +827,22 @@ composer.addEventListener("submit", (event) => {
   updateUsageState();
 
   if (remainingMessages === 0) {
-    window.setTimeout(() => {
-      addMessage("acabaram as mensagens de hoje por aqui. amanhã a gente continua.", "luna");
-    }, 520);
+    replyAsLuna("acabaram as mensagens de hoje por aqui. amanhã a gente continua.");
     return;
   }
 
-  replyAsLuna();
+  replyAsLuna("", text);
 });
 
 input.addEventListener("input", resizeComposer);
+
+input.addEventListener("paste", () => {
+  window.requestAnimationFrame(resizeComposer);
+});
+
+input.addEventListener("cut", () => {
+  window.requestAnimationFrame(resizeComposer);
+});
 
 input.addEventListener("keydown", (event) => {
   if (event.key === "Enter" && !event.shiftKey) {
