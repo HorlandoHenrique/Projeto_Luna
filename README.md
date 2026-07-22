@@ -8,6 +8,10 @@ MVP inicial de um chat com personagem virtual. A prioridade do projeto é fazer 
 Projeto_Luna/
 |-- AGENTS.md
 |-- README.md
+|-- package.json
+|-- backend/
+|   |-- prisma/
+|   `-- src/
 |-- knowledge/
 |-- Luna_visual/
 |   |-- 00_canon/
@@ -25,7 +29,7 @@ Projeto_Luna/
 
 ## Frontend Atual
 
-O frontend é um site desktop-first, estático, feito apenas com HTML, CSS e JavaScript. Ele não exige instalação de pacotes nem fonte externa obrigatória.
+O frontend é um site desktop-first feito com HTML, CSS e JavaScript. Ele ainda funciona em modo visual quando o backend não está rodando, mas agora tenta usar a API local para conta, chat, memória, relacionamento e assinatura visual.
 
 Ele contém:
 
@@ -36,7 +40,26 @@ Ele contém:
 - painel direito com chat amplo, contador de mensagens e campo de envio;
 - foto da Luna derivada dos arquivos canônicos de `Luna_visual/00_canon/`;
 - respostas simuladas locais;
+- integração opcional com API local;
 - estado visual quando o limite de mensagens está acabando.
+
+## Backend Atual
+
+O backend inicial fica em `backend/` e usa:
+
+- Node.js com Fastify;
+- Prisma Client;
+- SQLite local;
+- cadastro e login por e-mail/senha;
+- login Google preparado por `GOOGLE_CLIENT_ID`;
+- chat persistente;
+- memória básica heurística;
+- progressão de intimidade, afinidade e conforto;
+- limites de segurança básicos;
+- lista de espera/intenção de assinatura;
+- IA via OpenAI quando `OPENAI_API_KEY` estiver configurada.
+
+Sem chave da OpenAI, o backend usa respostas locais de fallback, mas ainda grava histórico, memórias e relacionamento.
 
 ## Luna Visual
 
@@ -77,7 +100,7 @@ Nesta fase, o login exibe nome/foto do usuário na sessão do navegador. A verif
 
 ## Como Rodar Localmente
 
-Opção simples:
+Frontend sem backend:
 
 1. Abra `luna_mvp_frontend/index.html` no navegador.
 
@@ -100,16 +123,29 @@ Depois acesse:
 http://localhost:5173
 ```
 
+Backend e frontend juntos:
+
+```powershell
+copy .env.example .env
+pnpm install
+pnpm db:generate
+pnpm db:push
+pnpm dev
+```
+
+API:
+
+```text
+http://127.0.0.1:3333
+```
+
 ## O Que Ainda Não Existe
 
-- Backend.
-- Banco de dados.
-- Autenticação própria real.
-- Sessão real de servidor.
 - Pagamento real.
-- Integração com IA.
-- Memória persistente.
+- Produção/hospedagem.
+- Treinamento ou fine-tuning.
+- Painel administrativo.
 
 ## Próxima Etapa Recomendada
 
-Criar a fundação técnica de backend para verificar o ID token do Google, persistir usuários, guardar histórico e começar a memória real da Luna sem perder a simplicidade do MVP.
+Configurar `OPENAI_API_KEY`, testar o prompt canônico em conversas reais e ajustar a memória seletiva antes de pensar em treinamento/fine-tuning.

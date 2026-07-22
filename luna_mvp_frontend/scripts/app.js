@@ -45,6 +45,7 @@ const LUNA_TYPING_DOT_INTERVAL_MS = 520;
 const LUNA_LEARNED_WORD_SLIP_RATE = 0.08;
 const LUNA_MANUAL_CORRECTION_SKIP_RATE = 0.02;
 const AUTH_PROFILE_STORAGE_KEY = "luna_auth_profile";
+const BACKEND_SESSION_STORAGE_KEY = "luna_backend_session";
 const SITE_ACCOUNT_STORAGE_KEY = "luna_site_demo_account";
 const SUBSCRIPTION_STORAGE_KEY = "luna_subscription_demo";
 const LEGACY_GOOGLE_STORAGE_KEY = "luna_google_profile";
@@ -59,6 +60,7 @@ let selectedPaymentMethod = "card";
 let isLunaTyping = false;
 let lunaTypingIndicator = null;
 let lunaTypingDotTimer = null;
+let backendConversationActive = false;
 
 const lunaReplies = [
   "entendi. me fala um pouco mais disso.",
@@ -401,6 +403,22 @@ function saveActiveProfile(profile) {
   renderSignedInState(profile);
 }
 
+function getProfileFromBackendUser(user) {
+  return {
+    source: user.authProvider || "backend",
+    name: user.displayName,
+    given_name: user.displayName?.split(" ")[0],
+    email: user.email,
+    picture: user.avatarUrl
+  };
+}
+
+function saveBackendSession(session) {
+  window.sessionStorage.setItem(BACKEND_SESSION_STORAGE_KEY, JSON.stringify(session));
+  window.LunaApi?.setToken(session.token);
+  saveActiveProfile(getProfileFromBackendUser(session.user));
+}
+
 function saveGoogleProfile(profile) {
   const safeProfile = {
     source: "google",
@@ -423,7 +441,17 @@ function readSessionJson(key) {
 }
 
 function loadStoredProfile() {
+  const backendSession = loadBackendSession();
+
+  if (backendSession?.user) {
+    return getProfileFromBackendUser(backendSession.user);
+  }
+
   return readSessionJson(AUTH_PROFILE_STORAGE_KEY) || readSessionJson(LEGACY_GOOGLE_STORAGE_KEY);
+}
+
+function loadBackendSession() {
+  return readSessionJson(BACKEND_SESSION_STORAGE_KEY);
 }
 
 function loadSiteAccount() {
@@ -579,7 +607,7 @@ function renderSubscriptionState(subscription) {
   usageHint.textContent = `Assinatura ${plan.label.toLowerCase()} de teste ativa nesta sessão.`;
 }
 
-function handleSubscriptionSubmit() {
+async function handleSubscriptionSubmit() {
   const activeForm = getActivePaymentForm();
 
   if (!activeForm.reportValidity()) {
@@ -604,6 +632,19 @@ function handleSubscriptionSubmit() {
   renderSubscriptionState(subscription);
   setPaymentHint("Assinatura de teste ativada nesta sessão.", "success");
 
+  if (window.LunaApi) {
+    try {
+      await ensureBackendSession();
+      await window.LunaApi.createSubscriptionIntent({
+        plan,
+        paymentMethod: selectedPaymentMethod
+      });
+      setPaymentHint("Intenção premium salva no backend. Nenhum pagamento foi processado.", "success");
+    } catch {
+      setPaymentHint("Assinatura visual ativa. Backend indisponível para salvar a intenção agora.", "warning");
+    }
+  }
+
   window.setTimeout(closeSubscriptionModal, 800);
 }
 
@@ -625,7 +666,7 @@ function saveSiteAccount(account) {
   saveActiveProfile(getPublicSiteProfile(account));
 }
 
-function handleSignupSubmit(event) {
+async function handleSignupSubmit(event) {
   event.preventDefault();
 
   const formData = new FormData(signupForm);
@@ -648,6 +689,26 @@ function handleSignupSubmit(event) {
     return;
   }
 
+  if (window.LunaApi) {
+    try {
+      const session = await window.LunaApi.signup({
+        displayName: name,
+        email,
+        password,
+        ageConfirmed,
+        termsAccepted,
+        newsAccepted
+      });
+
+      saveBackendSession(session);
+      signupForm.reset();
+      setLoginHint("Conta criada com backend e memória persistente ativa.");
+      return;
+    } catch (error) {
+      setLoginHint(`${error.message} Vou manter o modo visual por enquanto.`, true);
+    }
+  }
+
   const account = {
     source: "site",
     name,
@@ -665,12 +726,25 @@ function handleSignupSubmit(event) {
   setLoginHint("Conta de teste criada nesta sessão do navegador.");
 }
 
-function handleSigninSubmit(event) {
+async function handleSigninSubmit(event) {
   event.preventDefault();
 
   const formData = new FormData(signinForm);
   const email = normalizeEmail(String(formData.get("email") || ""));
   const password = String(formData.get("password") || "");
+  if (window.LunaApi) {
+    try {
+      const session = await window.LunaApi.login({ email, password });
+
+      saveBackendSession(session);
+      signinForm.reset();
+      setLoginHint("Entrada feita com backend e histórico persistente.");
+      return;
+    } catch {
+      setLoginHint("Não encontrei essa conta no backend. Vou tentar a sessão visual.", true);
+    }
+  }
+
   const account = loadSiteAccount();
   const passwordToken = getDemoPasswordToken(email, password);
 
@@ -685,9 +759,22 @@ function handleSigninSubmit(event) {
   setLoginHint("Entrada simulada nesta sessão do navegador.");
 }
 
-function handleGoogleCredential(response) {
+async function handleGoogleCredential(response) {
   try {
     const profile = decodeJwtPayload(response.credential);
+
+    if (window.LunaApi) {
+      try {
+        const session = await window.LunaApi.google(response.credential);
+
+        saveBackendSession(session);
+        setLoginHint("Login Google feito com backend.");
+        return;
+      } catch (error) {
+        setLoginHint(`${error.message} Mantive o login visual do Google.`, true);
+      }
+    }
+
     saveGoogleProfile(profile);
     setLoginHint("Login feito com Google nesta sessão do navegador.");
   } catch {
@@ -786,29 +873,82 @@ function updateUsageState() {
     return;
   }
 
+  if (backendConversationActive) {
+    usageHint.textContent = "Memória e relacionamento salvos no backend.";
+    updateComposerAvailability();
+    return;
+  }
+
   usageHint.textContent = "Este limite é apenas uma simulação do MVP.";
   updateComposerAvailability();
 }
 
-function replyAsLuna(forcedReply = "", userText = "") {
+async function ensureBackendSession() {
+  const storedSession = loadBackendSession();
+
+  if (storedSession?.token) {
+    window.LunaApi?.setToken(storedSession.token);
+    return storedSession;
+  }
+
+  if (!window.LunaApi) {
+    return null;
+  }
+
+  const displayName = loadStoredProfile()?.name || "Visitante";
+  const session = await window.LunaApi.createGuest(displayName);
+  saveBackendSession(session);
+
+  return session;
+}
+
+async function getBackendReply(userText) {
+  if (!window.LunaApi) {
+    return null;
+  }
+
+  try {
+    await ensureBackendSession();
+    const response = await window.LunaApi.sendMessage(userText);
+
+    backendConversationActive = true;
+
+    if (response.usedAi) {
+      usageHint.textContent = "IA, memória e relacionamento ativos no backend.";
+    } else {
+      usageHint.textContent = "Memória e relacionamento salvos no backend. IA entra quando a chave for configurada.";
+    }
+
+    return response.reply;
+  } catch (error) {
+    console.warn("Luna backend indisponível:", error.message);
+    return null;
+  }
+}
+
+async function replyAsLuna(forcedReply = "", userText = "") {
   if (isLunaTyping) {
     return;
   }
 
-  const rawReply = forcedReply || chooseLunaReply(userText);
-  const reply = normalizeLunaReply(rawReply);
-  const typingDelay = getTypingDelay(reply);
-
   isLunaTyping = true;
   updateComposerAvailability();
   showLunaTypingIndicator();
+
+  const startedAt = Date.now();
+  const backendReply = forcedReply ? null : await getBackendReply(userText);
+  const rawReply = forcedReply || backendReply || chooseLunaReply(userText);
+  const reply = backendReply ? rawReply : normalizeLunaReply(rawReply);
+  const typingDelay = getTypingDelay(reply);
+  const elapsed = Date.now() - startedAt;
+  const remainingTypingDelay = Math.max(320, typingDelay - elapsed);
 
   window.setTimeout(() => {
     hideLunaTypingIndicator();
     addMessage(reply, "luna");
     isLunaTyping = false;
     updateUsageState();
-  }, typingDelay);
+  }, remainingTypingDelay);
 }
 
 composer.addEventListener("submit", (event) => {
@@ -921,7 +1061,9 @@ subscriptionSubmit.addEventListener("click", handleSubscriptionSubmit);
 
 logoutButton.addEventListener("click", () => {
   window.sessionStorage.removeItem(AUTH_PROFILE_STORAGE_KEY);
+  window.sessionStorage.removeItem(BACKEND_SESSION_STORAGE_KEY);
   window.sessionStorage.removeItem(LEGACY_GOOGLE_STORAGE_KEY);
+  window.LunaApi?.clearToken();
   window.google?.accounts?.id?.disableAutoSelect();
   renderSignedOutState();
 });
@@ -930,6 +1072,12 @@ updateUsageState();
 resizeComposer();
 updateSelectedPlan();
 renderSubscriptionState(loadSubscription());
+
+const storedBackendSession = loadBackendSession();
+
+if (storedBackendSession?.token) {
+  window.LunaApi?.setToken(storedBackendSession.token);
+}
 
 const storedProfile = loadStoredProfile();
 

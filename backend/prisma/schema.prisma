@@ -1,0 +1,113 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String              @id @default(cuid())
+  email             String?             @unique
+  passwordHash      String?
+  googleSub         String?             @unique
+  displayName       String
+  avatarUrl         String?
+  authProvider      String              @default("guest")
+  ageConfirmed      Boolean             @default(false)
+  termsAccepted     Boolean             @default(false)
+  newsAccepted      Boolean             @default(false)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  lastSeenAt        DateTime?
+  conversations     Conversation[]
+  memories          Memory[]
+  relationshipState RelationshipState?
+  safetyEvents      SafetyEvent[]
+  waitlistEntries   WaitlistEntry[]
+  subscriptionIntents SubscriptionIntent[]
+}
+
+model Conversation {
+  id        String    @id @default(cuid())
+  userId    String
+  title     String    @default("Conversa com Luna")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages  Message[]
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  role           String
+  content        String
+  metadata       String?
+  createdAt      DateTime     @default(now())
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+}
+
+model Memory {
+  id              String   @id @default(cuid())
+  userId          String
+  type            String
+  label           String
+  content         String
+  priority        Int      @default(1)
+  confidence      Float    @default(0.6)
+  sourceMessageId String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, type, label])
+}
+
+model RelationshipState {
+  id                String   @id @default(cuid())
+  userId            String   @unique
+  intimacy          Int      @default(0)
+  affinity          Int      @default(0)
+  comfort           Int      @default(0)
+  trust             Int      @default(0)
+  conflict          Int      @default(0)
+  romanticOpenness  Int      @default(0)
+  messageCount      Int      @default(0)
+  summary           String   @default("A relacao ainda esta no começo.")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  lastInteractionAt DateTime?
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model SafetyEvent {
+  id        String   @id @default(cuid())
+  userId    String?
+  type      String
+  severity  String
+  content   String
+  createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+}
+
+model WaitlistEntry {
+  id          String   @id @default(cuid())
+  userId      String?
+  email       String
+  displayName String?
+  source      String   @default("site")
+  createdAt   DateTime @default(now())
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+}
+
+model SubscriptionIntent {
+  id            String   @id @default(cuid())
+  userId        String
+  plan          String
+  paymentMethod String
+  status        String   @default("visual_waitlist")
+  createdAt     DateTime @default(now())
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
