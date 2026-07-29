@@ -1,18 +1,31 @@
-# Cadastro e Conta
+# Cadastro E Conta
 
-Este documento separa o que o MVP estatico pode simular agora do que precisa existir quando o Projeto Luna tiver backend real.
+Este documento separa o que pode existir como ferramenta interna de
+desenvolvimento do que pode aparecer para o usuario comum.
 
-## Agora: MVP Frontend
+## Interface Publica
 
-- Criar conta propria do site com nome, e-mail, senha, confirmacao de senha, maioridade, aceite de termos/privacidade e opt-in de novidades.
-- Entrar com a conta criada na mesma sessao do navegador.
-- Manter a opcao de entrar com Google como alternativa.
-- Mostrar estado logado no header com chip de usuario e acao de sair.
-- Nao salvar senha em texto no navegador.
-- Usar apenas verificador demonstrativo em `sessionStorage`, sem seguranca real.
-- Nao criar usuario real, sessao real, banco de dados, pagamento real, IA ou memoria persistente.
+- Nao mostrar cadastro, login, recuperacao de senha ou login Google como
+  funcionais sem API/backend real por tras.
+- Nao afirmar que existe historico entre dispositivos, sessao persistente ou
+  memoria de conta quando isso nao estiver implementado.
+- Pedir o minimo possivel antes da primeira conversa.
+- Dados pessoais devem surgir naturalmente no chat, nao como formulario frio.
 
-## Proxima Fase: Backend De Conta
+## Modo Interno: DEBUG_UI
+
+Com `DEBUG_UI` ativo, o frontend pode mostrar fluxos visuais para teste:
+
+- criar conta propria com nome, e-mail, senha, confirmacao, maioridade, termos e opt-in;
+- entrar com a conta criada na mesma sessao do navegador;
+- sair da sessao visual;
+- testar Google Identity Services quando configurado;
+- validar layout, textos, estados e erros.
+
+Esse modo nao representa seguranca real e nao deve ser apresentado como produto
+pronto.
+
+## Backend De Conta
 
 - Cadastro real com e-mail unico e senha hasheada no servidor.
 - Verificacao de e-mail antes de liberar recursos sensiveis.
@@ -31,9 +44,7 @@ Este documento separa o que o MVP estatico pode simular agora do que precisa exi
 
 ## Relacionamento E Produto
 
-- O cadastro deve pedir o minimo necessario antes da primeira conversa.
-- Dados mais pessoais devem surgir naturalmente no chat, nao como formulario frio.
-- A conta deve guardar identidade, limites de mensagens, assinatura, historico e consentimentos.
+- A conta deve guardar identidade, historico e consentimentos quando houver backend real.
 - Os eixos de intimidade, afinidade e conforto devem ficar no backend quando a memoria real existir.
 - Romance nunca deve ser assumido pelo cadastro ou pelo onboarding.
 

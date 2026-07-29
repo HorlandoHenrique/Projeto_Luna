@@ -92,4 +92,4 @@ class LunaApiClient {
   }
 }
 
-window.LunaApi = new LunaApiClient(window.LUNA_API_CONFIG);
+window.LunaApi = window.LUNA_API_CONFIG?.baseUrl ? new LunaApiClient(window.LUNA_API_CONFIG) : null;

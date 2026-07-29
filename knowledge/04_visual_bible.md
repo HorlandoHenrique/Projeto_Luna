@@ -91,3 +91,77 @@ Cenários a evitar:
 - iates
 - mansões
 - roupas extravagantes
+
+## Direção Do Site
+
+O site atual é desktop-first e responsivo.
+
+A experiência principal deve ser planejada para desktop/notebook e adaptada
+para tablets e celulares.
+
+A interface não deve parecer um aplicativo mobile ampliado.
+
+No desktop, aproveitar a largura disponível para criar uma composição imersiva
+entre:
+
+- imagem da Luna
+- identidade da personagem
+- apresentação
+- área de conversa
+
+## Interface Pública
+
+A interface pública deve parecer um produto sério e íntimo, não um protótipo,
+dashboard, ferramenta de IA, painel administrativo, SaaS, crypto, futurista ou
+gamer.
+
+Evitar na interface pública:
+
+- beta
+- beta privado
+- MVP
+- protótipo
+- teste
+- conversa em teste
+- respostas simuladas
+- simulação
+- avisos de que tudo acontece no navegador
+- avisos de login ou pagamentos ainda não funcionais
+- limite fictício de mensagens
+
+Esses elementos podem existir apenas em modo interno de desenvolvimento.
+
+## Paleta E Componentes
+
+Priorizar preto grafite, carvão, marrom muito escuro, vinho fechado, off-white,
+cinza quente e um único tom de destaque quente.
+
+Evitar neon, laranja excessivamente saturado, azul tecnológico, degradês fortes,
+brilho futurista, glassmorphism excessivo, bordas luminosas, videogame,
+cyberpunk e crypto.
+
+Reduzir quantidade de cards, caixas dentro de caixas, badges, cápsulas, bordas,
+etiquetas em caixa alta, botões competindo entre si e informações técnicas
+visíveis.
+
+Usar superfícies sólidas, bordas quase invisíveis, cantos moderados, sombras
+leves, hierarquia tipográfica clara, espaço vazio intencional e animações
+discretas.
+
+## Assets Canônicos E Experimentais
+
+Separar rigidamente imagens canônicas e experimentais, usando estrutura
+equivalente a:
+
+```text
+assets/luna/canon/
+assets/luna/experiments/
+```
+
+Imagens canônicas podem aparecer no produto.
+
+Imagens experimentais servem para testar poses, iluminação, cenários, roupas e
+modelos de geração. Elas não devem ser colocadas automaticamente no site.
+
+Depois que o rosto oficial for definido, preservar a mesma identidade facial é
+mais importante do que buscar pequenos ganhos de beleza em cada imagem.

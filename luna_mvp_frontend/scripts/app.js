@@ -2,6 +2,9 @@ const composer = document.querySelector("#composer");
 const input = document.querySelector("#message-input");
 const sendButton = document.querySelector("#send-button");
 const messageList = document.querySelector("#message-list");
+const lunaPresenceStatus = document.querySelector("#luna-presence-status");
+const chatSuggestions = document.querySelector("#chat-suggestions");
+const chatSuggestionButtons = document.querySelectorAll("[data-chat-suggestion]");
 const countEl = document.querySelector("#message-count");
 const usageCard = document.querySelector("#usage-card");
 const usageHint = document.querySelector("#usage-hint");
@@ -18,8 +21,6 @@ const authPanels = document.querySelectorAll("[data-auth-panel]");
 const signupForm = document.querySelector("#signup-form");
 const signinForm = document.querySelector("#signin-form");
 const forgotPasswordButton = document.querySelector("#forgot-password-button");
-const subscribeButton = document.querySelector("#subscribe-button");
-const premiumButton = document.querySelector("#premium-button");
 const subscriptionOverlay = document.querySelector("#subscription-overlay");
 const subscriptionClose = document.querySelector("#subscription-close");
 const paymentTabs = document.querySelectorAll("[data-payment-method]");
@@ -35,13 +36,57 @@ const cardExpiryInput = document.querySelector("#card-expiry");
 const cardCpfInput = document.querySelector("#card-cpf");
 const pixCpfInput = document.querySelector("#pix-cpf");
 const pixCode = document.querySelector("#pix-code");
+const menuToggle = document.querySelector("#menu-toggle");
+const userMenuOverlay = document.querySelector("#user-menu-overlay");
+const userMenuClose = document.querySelector("#user-menu-close");
+const userMenuTabs = document.querySelectorAll("[data-menu-tab]");
+const userMenuPanels = document.querySelectorAll("[data-menu-panel]");
+const menuProfilePhoto = document.querySelector("#menu-profile-photo");
+const menuProfileName = document.querySelector("#menu-profile-name");
+const menuProfileEmail = document.querySelector("#menu-profile-email");
+const menuAccountStatus = document.querySelector("#menu-account-status");
+const menuPlanStatus = document.querySelector("#menu-plan-status");
+const menuMemoryStatus = document.querySelector("#menu-memory-status");
+const menuPhotoStatus = document.querySelector("#menu-photo-status");
+const profilePhotoInput = document.querySelector("#profile-photo-input");
+const menuAccountLogin = document.querySelector("#menu-account-login");
+const menuAccountPremium = document.querySelector("#menu-account-premium");
+const menuConversationTime = document.querySelector("#menu-conversation-time");
+const menuSessionMood = document.querySelector("#menu-session-mood");
+const menuUserMessages = document.querySelector("#menu-user-messages");
+const menuLunaMessages = document.querySelector("#menu-luna-messages");
+const menuRemainingMessages = document.querySelector("#menu-remaining-messages");
+const menuRelationshipInsight = document.querySelector("#menu-relationship-insight");
+const supportStatus = document.querySelector(".support-status");
+const supportStatusText = document.querySelector("#support-status-text");
+const supportChat = document.querySelector("#support-chat");
+const supportForm = document.querySelector("#support-form");
+const supportInput = document.querySelector("#support-input");
+const supportTopicButtons = document.querySelectorAll("[data-support-topic]");
+const imageViewer = document.querySelector("#image-viewer");
+const imageViewerImage = document.querySelector("#image-viewer-image");
+const imageViewerClose = document.querySelector("#image-viewer-close");
+const imageViewerTriggers = document.querySelectorAll("[data-viewer-src]");
+const lunaCarousel = document.querySelector("#luna-carousel");
+const lunaCarouselBackdrop = document.querySelector("#luna-carousel-backdrop");
+const lunaCarouselSlides = document.querySelectorAll("[data-carousel-slide]");
+const debugElements = document.querySelectorAll("[data-debug-only]");
+const authEntryElements = document.querySelectorAll("[data-auth-entry]");
 
-const DAILY_MESSAGE_LIMIT = 20;
+const DEBUG_UI = new URLSearchParams(window.location.search).get("debug") === "1" || window.localStorage.getItem("luna_debug_ui") === "true";
+const DAILY_MESSAGE_LIMIT = DEBUG_UI ? 20 : Number.POSITIVE_INFINITY;
 const LOW_MESSAGE_THRESHOLD = 5;
 const COMPOSER_MAX_TEXTAREA_HEIGHT = 132;
+const LUNA_CAROUSEL_AUTO_DELAY_MS = 8200;
+const LUNA_CAROUSEL_ROTATION_MS = 780;
+const LUNA_CAROUSEL_MAX_PHOTOS = 10;
 const LUNA_TYPING_MIN_DELAY_MS = 900;
 const LUNA_TYPING_MAX_DELAY_MS = 5400;
 const LUNA_TYPING_DOT_INTERVAL_MS = 520;
+const LUNA_READ_MIN_DELAY_MS = 900;
+const LUNA_READ_MAX_DELAY_MS = 3800;
+const LUNA_COMPREHENSION_MIN_DELAY_MS = 420;
+const LUNA_COMPREHENSION_MAX_DELAY_MS = 1600;
 const LUNA_LEARNED_WORD_SLIP_RATE = 0.08;
 const LUNA_MANUAL_CORRECTION_SKIP_RATE = 0.02;
 const AUTH_PROFILE_STORAGE_KEY = "luna_auth_profile";
@@ -49,6 +94,10 @@ const BACKEND_SESSION_STORAGE_KEY = "luna_backend_session";
 const SITE_ACCOUNT_STORAGE_KEY = "luna_site_demo_account";
 const SUBSCRIPTION_STORAGE_KEY = "luna_subscription_demo";
 const LEGACY_GOOGLE_STORAGE_KEY = "luna_google_profile";
+const PROFILE_PHOTO_STORAGE_KEY = "luna_profile_photo";
+const MENU_SESSION_STARTED_STORAGE_KEY = "luna_menu_session_started_at";
+const USER_MESSAGE_COUNT_STORAGE_KEY = "luna_user_message_count";
+const LUNA_MESSAGE_COUNT_STORAGE_KEY = "luna_luna_message_count";
 const GOOGLE_CLIENT_ID_PLACEHOLDER = "COLE_SEU_GOOGLE_CLIENT_ID_AQUI.apps.googleusercontent.com";
 const LUNA_FINAL_PERIOD_TONES = new Set(["dry", "sarcastic", "angry", "upset", "argument"]);
 const LUNA_PRECISE_TYPING_TONES = new Set(["serious", "very-serious", "angry", "upset", "argument"]);
@@ -61,6 +110,16 @@ let isLunaTyping = false;
 let lunaTypingIndicator = null;
 let lunaTypingDotTimer = null;
 let backendConversationActive = false;
+let imageViewerLastFocus = null;
+let activeCarouselIndex = 0;
+let lunaCarouselAutoTimer = null;
+let lunaCarouselTransitionTimer = null;
+let isLunaCarouselAnimating = false;
+let latestRelationship = null;
+let menuStatsTimer = null;
+let lunaLastSeenAt = new Date();
+let userMessageCount = Number(window.sessionStorage.getItem(USER_MESSAGE_COUNT_STORAGE_KEY) || 0);
+let lunaMessageCount = Number(window.sessionStorage.getItem(LUNA_MESSAGE_COUNT_STORAGE_KEY) || 1);
 
 const lunaReplies = [
   "entendi. me fala um pouco mais disso.",
@@ -101,16 +160,261 @@ const subscriptionPlans = {
   }
 };
 
+const supportReplies = {
+  account: "Sobre conta: quando o acesso estiver disponível, ele deve servir para manter histórico, preferências e continuidade de forma segura.",
+  subscription: "Sobre continuidade: qualquer plano pago só deve aparecer quando houver benefício real e uma forma segura de pagamento.",
+  payment: "Sobre pagamento: se houver cobrança no futuro, ela precisa ser clara, segura e confirmada antes de qualquer liberação de recurso.",
+  privacy: "Sobre privacidade: a Luna deve lembrar coisas importantes com controle e consentimento, sem virar memória perfeita.",
+  luna: "Sobre a Luna: ela é a personagem central do produto. A tecnologia ajuda, mas a sensação precisa ser de conversa com alguém consistente.",
+  human: "Vou marcar isso como algo que pode precisar de uma pessoa real. O suporte humano ainda será organizado fora deste atendimento inicial."
+};
+
+const humanSupportTerms = [
+  "humano",
+  "pessoa",
+  "atendente",
+  "cobrança",
+  "cobranca",
+  "estorno",
+  "reembolso",
+  "cancelar",
+  "cancelamento",
+  "erro grave",
+  "não consigo entrar",
+  "nao consigo entrar"
+];
+
+const messageStatusMeta = {
+  sent: {
+    icon: "✓",
+    label: "enviada",
+    title: "Apenas enviada"
+  },
+  delivered: {
+    icon: "✓✓",
+    label: "não vista",
+    title: "Entregue, ainda não vista"
+  },
+  read: {
+    icon: "✓✓",
+    label: "vista",
+    title: "Visualizada"
+  },
+  failed: {
+    icon: "!",
+    label: "não enviada",
+    title: "Não enviada"
+  }
+};
+
+function applyDebugUi() {
+  document.documentElement.dataset.debugUi = String(DEBUG_UI);
+
+  debugElements.forEach((element) => {
+    element.hidden = !DEBUG_UI;
+  });
+}
+
+function hasRealAuthSystem() {
+  return Boolean(window.LunaApi);
+}
+
+function canShowAuthUi() {
+  return DEBUG_UI || hasRealAuthSystem();
+}
+
+function applyPublicFeatureVisibility() {
+  const authAvailable = canShowAuthUi();
+
+  authEntryElements.forEach((element) => {
+    element.hidden = !authAvailable;
+  });
+
+  if (!authAvailable) {
+    loginPanel.hidden = true;
+    loginButton.setAttribute("aria-expanded", "false");
+    userChip.hidden = true;
+  }
+}
+
+function persistInteractionCounts() {
+  window.sessionStorage.setItem(USER_MESSAGE_COUNT_STORAGE_KEY, String(userMessageCount));
+  window.sessionStorage.setItem(LUNA_MESSAGE_COUNT_STORAGE_KEY, String(lunaMessageCount));
+}
+
+function prefersReducedMotion() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+function focusConversation() {
+  const chatPanel = document.querySelector(".chat-panel");
+
+  chatPanel?.scrollIntoView({
+    behavior: prefersReducedMotion() ? "auto" : "smooth",
+    block: "start"
+  });
+
+  window.setTimeout(() => input.focus(), prefersReducedMotion() ? 0 : 180);
+}
+
+function updateSuggestionVisibility() {
+  if (!chatSuggestions) {
+    return;
+  }
+
+  chatSuggestions.hidden = Boolean(input.value.trim());
+}
+
 function scrollMessagesToBottom() {
   messageList.scrollTop = messageList.scrollHeight;
 }
 
-function addMessage(text, author) {
+function wait(ms) {
+  return new Promise((resolve) => {
+    window.setTimeout(resolve, ms);
+  });
+}
+
+function formatMessageTime(date = new Date()) {
+  return new Intl.DateTimeFormat("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit"
+  }).format(date);
+}
+
+function setLunaPresence(isOnline) {
+  if (!DEBUG_UI || !lunaPresenceStatus) {
+    return;
+  }
+
+  lunaPresenceStatus.classList.toggle("is-online", isOnline);
+  lunaPresenceStatus.textContent = isOnline ? "online" : `visto por último às ${formatMessageTime(lunaLastSeenAt)}`;
+}
+
+function setLunaOnline() {
+  setLunaPresence(true);
+}
+
+function setLunaLastSeen() {
+  lunaLastSeenAt = new Date();
+  setLunaPresence(false);
+}
+
+function updateLunaPresenceFromWindow() {
+  if (document.hidden) {
+    setLunaLastSeen();
+    return;
+  }
+
+  setLunaOnline();
+}
+
+function getReadingDelay(text = "") {
+  const words = text.trim().split(/\s+/).filter(Boolean).length;
+  const calculatedDelay = 620 + text.length * 18 + words * 92;
+
+  return Math.min(
+    LUNA_READ_MAX_DELAY_MS,
+    Math.max(LUNA_READ_MIN_DELAY_MS, calculatedDelay)
+  );
+}
+
+function getComprehensionDelay(text = "") {
+  const punctuationMarks = text.match(/[,.!?;:]/g)?.length || 0;
+  const calculatedDelay = 340 + text.length * 8 + punctuationMarks * 120;
+
+  return Math.min(
+    LUNA_COMPREHENSION_MAX_DELAY_MS,
+    Math.max(LUNA_COMPREHENSION_MIN_DELAY_MS, calculatedDelay)
+  );
+}
+
+function updateMessageStatus(message, status) {
+  if (!message || message.dataset.messageAuthor !== "user") {
+    return;
+  }
+
+  const statusMeta = messageStatusMeta[status] || messageStatusMeta.sent;
+  const statusElement = message.querySelector("[data-message-status]");
+  const iconElement = statusElement?.querySelector(".message-status__icon");
+  const labelElement = statusElement?.querySelector(".message-status__label");
+
+  message.dataset.messageStatus = status;
+
+  if (!statusElement || !iconElement || !labelElement) {
+    return;
+  }
+
+  statusElement.title = statusMeta.title;
+  statusElement.setAttribute("aria-label", statusMeta.title);
+  iconElement.textContent = statusMeta.icon;
+  labelElement.textContent = statusMeta.label;
+}
+
+function hydrateInitialMessageTimes() {
+  document.querySelectorAll("[data-initial-message] .message-time").forEach((timeElement) => {
+    const timestamp = new Date();
+    timeElement.dateTime = timestamp.toISOString();
+    timeElement.textContent = formatMessageTime(timestamp);
+  });
+}
+
+function addMessage(text, author, options = {}) {
+  const timestamp = options.timestamp || new Date();
   const message = document.createElement("div");
   message.className = `message-bubble message-bubble--${author}`;
-  message.textContent = text;
+  message.dataset.messageAuthor = author;
+
+  const textElement = document.createElement("span");
+  textElement.className = "message-bubble__text";
+  textElement.textContent = text;
+
+  const metaElement = document.createElement("span");
+  metaElement.className = "message-meta";
+
+  const timeElement = document.createElement("time");
+  timeElement.className = "message-time";
+  timeElement.dateTime = timestamp.toISOString();
+  timeElement.textContent = formatMessageTime(timestamp);
+  metaElement.appendChild(timeElement);
+
+  if (author === "user" && DEBUG_UI) {
+    const statusElement = document.createElement("span");
+    statusElement.className = "message-status";
+    statusElement.dataset.messageStatus = "";
+
+    const iconElement = document.createElement("span");
+    iconElement.className = "message-status__icon";
+    iconElement.setAttribute("aria-hidden", "true");
+
+    const labelElement = document.createElement("span");
+    labelElement.className = "message-status__label";
+
+    statusElement.append(iconElement, labelElement);
+    metaElement.appendChild(statusElement);
+  }
+
+  message.append(textElement, metaElement);
   messageList.appendChild(message);
+
+  if (author === "user") {
+    userMessageCount += 1;
+
+    if (DEBUG_UI) {
+      updateMessageStatus(message, options.status || "sent");
+    }
+  }
+
+  if (author === "luna") {
+    lunaMessageCount += 1;
+  }
+
+  persistInteractionCounts();
+  updateUserMenu();
+  updateSuggestionVisibility();
   scrollMessagesToBottom();
+
+  return message;
 }
 
 function shouldUsePreciseTyping(tone) {
@@ -263,6 +567,10 @@ function setTypingIndicatorText(dotCount) {
 }
 
 function showLunaTypingIndicator() {
+  if (!DEBUG_UI) {
+    return;
+  }
+
   let dotCount = 1;
   lunaTypingIndicator = document.createElement("div");
   lunaTypingIndicator.className = "message-bubble message-bubble--luna message-bubble--typing";
@@ -380,22 +688,30 @@ function decodeJwtPayload(token) {
 }
 
 function renderSignedOutState() {
-  loginButton.hidden = false;
+  loginButton.hidden = !canShowAuthUi();
   loginButton.setAttribute("aria-expanded", "false");
   loginPanel.hidden = true;
   userChip.hidden = true;
   userAvatar.src = "";
+  updateUserMenu();
 }
 
 function renderSignedInState(profile) {
+  if (!canShowAuthUi()) {
+    renderSignedOutState();
+    return;
+  }
+
   const displayName = getDisplayName(profile);
+  const profilePhoto = getProfilePhotoSrc(profile);
 
   loginButton.hidden = true;
   loginPanel.hidden = true;
   userChip.hidden = false;
   userName.textContent = displayName;
-  userAvatar.src = profile.picture || getInitialAvatar(displayName);
-  userAvatar.alt = profile.picture ? `Foto de ${displayName}` : `Inicial de ${displayName}`;
+  userAvatar.src = profilePhoto;
+  userAvatar.alt = profile.picture || getStoredProfilePhoto() ? `Foto de ${displayName}` : `Inicial de ${displayName}`;
+  updateUserMenu();
 }
 
 function saveActiveProfile(profile) {
@@ -441,6 +757,10 @@ function readSessionJson(key) {
 }
 
 function loadStoredProfile() {
+  if (!canShowAuthUi()) {
+    return null;
+  }
+
   const backendSession = loadBackendSession();
 
   if (backendSession?.user) {
@@ -455,11 +775,258 @@ function loadBackendSession() {
 }
 
 function loadSiteAccount() {
+  if (!DEBUG_UI && !hasRealAuthSystem()) {
+    return null;
+  }
+
   return readSessionJson(SITE_ACCOUNT_STORAGE_KEY);
 }
 
 function loadSubscription() {
+  if (!DEBUG_UI) {
+    return null;
+  }
+
   return readSessionJson(SUBSCRIPTION_STORAGE_KEY);
+}
+
+function getStoredProfilePhoto() {
+  return window.sessionStorage.getItem(PROFILE_PHOTO_STORAGE_KEY) || "";
+}
+
+function getProfilePhotoSrc(profile) {
+  const storedPhoto = getStoredProfilePhoto();
+
+  if (storedPhoto) {
+    return storedPhoto;
+  }
+
+  if (profile?.picture) {
+    return profile.picture;
+  }
+
+  return getInitialAvatar(getDisplayName(profile || { name: "Usuário" }));
+}
+
+function getSessionStartedAt() {
+  const stored = window.sessionStorage.getItem(MENU_SESSION_STARTED_STORAGE_KEY);
+
+  if (stored) {
+    return Number(stored);
+  }
+
+  const now = Date.now();
+  window.sessionStorage.setItem(MENU_SESSION_STARTED_STORAGE_KEY, String(now));
+
+  return now;
+}
+
+function formatConversationTime() {
+  const elapsedMs = Math.max(0, Date.now() - getSessionStartedAt());
+  const minutes = Math.floor(elapsedMs / 60000);
+
+  if (minutes < 1) {
+    return "agora";
+  }
+
+  if (minutes < 60) {
+    return `${minutes} min`;
+  }
+
+  const hours = Math.floor(minutes / 60);
+  const remainingMinutes = minutes % 60;
+
+  return remainingMinutes ? `${hours}h ${remainingMinutes}min` : `${hours}h`;
+}
+
+function clampStat(value) {
+  return Math.max(0, Math.min(100, Math.round(value)));
+}
+
+function getEstimatedRelationship() {
+  const sent = userMessageCount;
+  const hasProfile = Boolean(loadStoredProfile());
+  const hasPhoto = Boolean(getStoredProfilePhoto());
+  const hasSubscription = Boolean(loadSubscription());
+
+  if (latestRelationship) {
+    return {
+      intimacy: clampStat(latestRelationship.intimacy ?? 0),
+      affinity: clampStat(latestRelationship.affinity ?? 0),
+      comfort: clampStat(latestRelationship.comfort ?? 0)
+    };
+  }
+
+  return {
+    intimacy: clampStat(sent * 5 + (hasProfile ? 6 : 0) + (hasPhoto ? 3 : 0)),
+    affinity: clampStat(sent * 4 + (hasProfile ? 4 : 0) + (hasSubscription ? 8 : 0)),
+    comfort: clampStat(sent * 4 + (hasPhoto ? 4 : 0))
+  };
+}
+
+function getRelationshipInsight({ intimacy, affinity, comfort }) {
+  const average = Math.round((intimacy + affinity + comfort) / 3);
+
+  if (average >= 55) {
+    return "A conversa já tem sinais de continuidade e mais liberdade entre vocês.";
+  }
+
+  if (average >= 28) {
+    return "A Luna já começa a reconhecer seu ritmo, mas ainda está indo sem pressa.";
+  }
+
+  if (userMessageCount > 0) {
+    return "O vínculo ainda é novo, mas já saiu do primeiro silêncio.";
+  }
+
+  return "A Luna ainda está te conhecendo aos poucos.";
+}
+
+function getSessionMood({ intimacy, affinity, comfort }) {
+  if (comfort >= 45) {
+    return "A conversa está ficando mais solta.";
+  }
+
+  if (affinity >= 35) {
+    return "Tem uma curiosidade boa aparecendo.";
+  }
+
+  if (userMessageCount > 0) {
+    return "Primeiros sinais de convivência.";
+  }
+
+  return "Conversa começando com calma.";
+}
+
+function updateUserMenu() {
+  const profile = loadStoredProfile();
+  const displayName = profile ? getDisplayName(profile) : "Usuário";
+  const subscription = loadSubscription();
+  const relationship = getEstimatedRelationship();
+  const hasBackendContinuity = hasRealAuthSystem() && (backendConversationActive || loadBackendSession());
+
+  menuProfilePhoto.src = getProfilePhotoSrc(profile);
+  menuProfilePhoto.alt = profile ? `Foto de ${displayName}` : "Foto de perfil do usuário";
+  menuProfileName.textContent = displayName;
+  menuProfileEmail.textContent = profile?.email || "Perfil local para ajustar sua experiência neste dispositivo.";
+  menuAccountStatus.textContent = profile ? "Conta ativa" : "Visitante";
+  menuPlanStatus.textContent = subscription ? `${subscriptionPlans[subscription.plan]?.label || "Plano"} registrado` : "Sem conta ativa";
+  menuMemoryStatus.textContent = hasBackendContinuity ? "Continuidade ativa" : "Sessão local";
+  menuPhotoStatus.textContent = getStoredProfilePhoto() || profile?.picture ? "Foto enviada" : "Aguardando foto";
+  menuConversationTime.textContent = formatConversationTime();
+  menuSessionMood.textContent = getSessionMood(relationship);
+  menuUserMessages.textContent = userMessageCount;
+  menuLunaMessages.textContent = lunaMessageCount;
+  menuRemainingMessages.textContent = remainingMessages;
+  menuRelationshipInsight.textContent = getRelationshipInsight(relationship);
+}
+
+function refreshModalBodyState() {
+  const hasOpenLayer = !subscriptionOverlay.hidden || !imageViewer.hidden || !userMenuOverlay.hidden;
+  document.body.classList.toggle("is-modal-open", hasOpenLayer);
+}
+
+function setUserMenuTab(tabName) {
+  userMenuTabs.forEach((tab) => {
+    const isActive = tab.dataset.menuTab === tabName;
+    tab.classList.toggle("is-active", isActive);
+    tab.setAttribute("aria-selected", String(isActive));
+  });
+
+  userMenuPanels.forEach((panel) => {
+    panel.hidden = panel.dataset.menuPanel !== tabName;
+    panel.classList.toggle("is-active", panel.dataset.menuPanel === tabName);
+  });
+
+  updateUserMenu();
+}
+
+function openUserMenu(tabName = "account") {
+  userMenuOverlay.hidden = false;
+  menuToggle.setAttribute("aria-expanded", "true");
+  loginPanel.hidden = true;
+  loginButton.setAttribute("aria-expanded", "false");
+  setUserMenuTab(tabName);
+  refreshModalBodyState();
+
+  window.clearInterval(menuStatsTimer);
+  menuStatsTimer = window.setInterval(updateUserMenu, 30000);
+  userMenuClose.focus();
+}
+
+function closeUserMenu() {
+  userMenuOverlay.hidden = true;
+  menuToggle.setAttribute("aria-expanded", "false");
+  window.clearInterval(menuStatsTimer);
+  menuStatsTimer = null;
+  refreshModalBodyState();
+  menuToggle.focus();
+}
+
+function appendSupportMessage(text, author = "bot") {
+  const bubble = document.createElement("div");
+  bubble.className = `support-bubble support-bubble--${author}`;
+  bubble.textContent = text;
+  supportChat.appendChild(bubble);
+  supportChat.scrollTop = supportChat.scrollHeight;
+}
+
+function getSupportReply(text) {
+  const normalizedText = text
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .toLocaleLowerCase("pt-BR");
+
+  const needsHuman = humanSupportTerms.some((term) => normalizedText.includes(
+    term
+      .normalize("NFD")
+      .replace(/\p{Diacritic}/gu, "")
+      .toLocaleLowerCase("pt-BR")
+  ));
+
+  if (needsHuman) {
+    supportStatus.classList.add("is-escalated");
+    supportStatusText.textContent = "Encaminhamento humano recomendado";
+    return supportReplies.human;
+  }
+
+  supportStatus.classList.remove("is-escalated");
+  supportStatusText.textContent = "Suporte inicial ativo";
+
+  if (/pagamento|cart[aã]o|pix|cobrar|cobranca|cobrança/u.test(normalizedText)) {
+    return supportReplies.payment;
+  }
+
+  if (/assinatura|premium|plano|mensal|anual/u.test(normalizedText)) {
+    return supportReplies.subscription;
+  }
+
+  if (/privacidade|dados|memoria|memória|lembrar/u.test(normalizedText)) {
+    return supportReplies.privacy;
+  }
+
+  if (/luna|personagem|ia|chat/u.test(normalizedText)) {
+    return supportReplies.luna;
+  }
+
+  if (/conta|login|entrar|senha|cadastro/u.test(normalizedText)) {
+    return supportReplies.account;
+  }
+
+  return "Entendi. Por enquanto eu consigo orientar sobre conta, acesso, pagamento futuro, privacidade e funcionamento da Luna.";
+}
+
+function sendSupportMessage(text) {
+  const trimmedText = text.trim();
+
+  if (!trimmedText) {
+    return;
+  }
+
+  appendSupportMessage(trimmedText, "user");
+  window.setTimeout(() => {
+    appendSupportMessage(getSupportReply(trimmedText), "bot");
+  }, 360);
 }
 
 function getSelectedPlan() {
@@ -535,7 +1102,7 @@ function setPaymentMethod(method) {
     panel.hidden = panel.dataset.paymentPanel !== method;
   });
 
-  setPaymentHint(method === "card" ? "Preencha os dados do cartão de teste." : "O Pix abaixo é apenas um código visual de teste.");
+  setPaymentHint(method === "card" ? "Preencha os dados para registrar interesse. Nenhuma cobrança será feita." : "O Pix abaixo é apenas uma prévia local. Nenhuma cobrança será feita.");
 }
 
 function updateSelectedPlan() {
@@ -546,8 +1113,8 @@ function updateSelectedPlan() {
     option.classList.toggle("is-selected", option.querySelector("input")?.value === selectedPlan);
   });
 
-  pixCode.textContent = selectedPlan === "yearly" ? "LUNA.PIX.BETA.17990.TESTE" : "LUNA.PIX.BETA.1990.TESTE";
-  subscriptionSubmit.textContent = `Confirmar ${plan.label.toLowerCase()} de teste`;
+  pixCode.textContent = selectedPlan === "yearly" ? "LUNA.PIX.LOCAL.17990" : "LUNA.PIX.LOCAL.1990";
+  subscriptionSubmit.textContent = `Registrar interesse ${plan.label.toLowerCase()}`;
 }
 
 function getActivePaymentForm() {
@@ -555,8 +1122,12 @@ function getActivePaymentForm() {
 }
 
 function openSubscriptionModal() {
+  if (!DEBUG_UI) {
+    return;
+  }
+
   subscriptionOverlay.hidden = false;
-  document.body.classList.add("is-modal-open");
+  refreshModalBodyState();
   loginPanel.hidden = true;
   loginButton.setAttribute("aria-expanded", "false");
   updateSelectedPlan();
@@ -566,7 +1137,206 @@ function openSubscriptionModal() {
 
 function closeSubscriptionModal() {
   subscriptionOverlay.hidden = true;
-  document.body.classList.remove("is-modal-open");
+  refreshModalBodyState();
+}
+
+function openImageViewerFromSource(imageSrc, imageAlt, focusTarget) {
+  if (!imageSrc) {
+    return;
+  }
+
+  imageViewerLastFocus = focusTarget || null;
+  imageViewerImage.src = imageSrc;
+  imageViewerImage.alt = imageAlt || "Foto ampliada da Luna";
+  imageViewer.hidden = false;
+  refreshModalBodyState();
+  imageViewerClose.focus();
+}
+
+function openImageViewer(trigger) {
+  openImageViewerFromSource(trigger.dataset.viewerSrc, trigger.dataset.viewerAlt, trigger);
+}
+
+function closeImageViewer() {
+  imageViewer.hidden = true;
+  imageViewerImage.src = "";
+  imageViewerImage.alt = "";
+  refreshModalBodyState();
+
+  if (imageViewerLastFocus) {
+    imageViewerLastFocus.focus();
+    imageViewerLastFocus = null;
+  }
+}
+
+function getCarouselPosition(slideIndex) {
+  const slideCount = lunaCarouselSlides.length;
+
+  if (!slideCount) {
+    return 0;
+  }
+
+  const forwardDistance = (slideIndex - activeCarouselIndex + slideCount) % slideCount;
+
+  if (forwardDistance === 0) {
+    return 0;
+  }
+
+  if (forwardDistance === 1) {
+    return 1;
+  }
+
+  if (forwardDistance === 2) {
+    return 2;
+  }
+
+  if (forwardDistance === slideCount - 1) {
+    return -1;
+  }
+
+  if (forwardDistance === slideCount - 2) {
+    return -2;
+  }
+
+  return forwardDistance <= slideCount / 2 ? 3 : -3;
+}
+
+function updateCarouselSlideState() {
+  lunaCarouselSlides.forEach((slide, index) => {
+    const position = getCarouselPosition(index);
+
+    slide.classList.remove("is-active", "is-next", "is-prev", "is-far-next", "is-far-prev", "is-hidden");
+
+    if (position === 0) {
+      slide.classList.add("is-active");
+      slide.setAttribute("aria-current", "true");
+      slide.setAttribute("aria-label", "Ampliar foto atual da Luna");
+      return;
+    }
+
+    slide.removeAttribute("aria-current");
+    slide.setAttribute("aria-label", "Trazer esta foto para o centro");
+
+    if (position === 1) {
+      slide.classList.add("is-next");
+      return;
+    }
+
+    if (position === -1) {
+      slide.classList.add("is-prev");
+      return;
+    }
+
+    if (position === 2) {
+      slide.classList.add("is-far-next");
+      return;
+    }
+
+    if (position === -2) {
+      slide.classList.add("is-far-prev");
+      return;
+    }
+
+    slide.classList.add("is-hidden");
+  });
+
+  const activeSlide = lunaCarouselSlides[activeCarouselIndex];
+  const activeSrc = activeSlide?.dataset.carouselSrc;
+
+  if (lunaCarouselBackdrop && activeSrc && lunaCarouselBackdrop.getAttribute("src") !== activeSrc) {
+    lunaCarouselBackdrop.src = activeSrc;
+  }
+}
+
+function setCarouselSlide(nextIndex) {
+  const slideCount = Math.min(lunaCarouselSlides.length, LUNA_CAROUSEL_MAX_PHOTOS);
+
+  if (!slideCount) {
+    return;
+  }
+
+  activeCarouselIndex = (nextIndex + slideCount) % slideCount;
+  isLunaCarouselAnimating = true;
+  window.clearTimeout(lunaCarouselTransitionTimer);
+  lunaCarouselTransitionTimer = window.setTimeout(() => {
+    isLunaCarouselAnimating = false;
+  }, LUNA_CAROUSEL_ROTATION_MS);
+
+  updateCarouselSlideState();
+}
+
+function stopLunaCarouselAutoRotation() {
+  window.clearInterval(lunaCarouselAutoTimer);
+  lunaCarouselAutoTimer = null;
+}
+
+function startLunaCarouselAutoRotation() {
+  const shouldReduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  stopLunaCarouselAutoRotation();
+
+  if (shouldReduceMotion || lunaCarouselSlides.length <= 1) {
+    return;
+  }
+
+  lunaCarouselAutoTimer = window.setInterval(() => {
+    if (document.hidden || !imageViewer.hidden || isLunaCarouselAnimating) {
+      return;
+    }
+
+    setCarouselSlide(activeCarouselIndex + 1);
+  }, LUNA_CAROUSEL_AUTO_DELAY_MS);
+}
+
+function restartLunaCarouselAutoRotation() {
+  stopLunaCarouselAutoRotation();
+  startLunaCarouselAutoRotation();
+}
+
+function handleCarouselSlideClick(event) {
+  const slide = event.currentTarget;
+  const slideIndex = Number(slide.dataset.carouselIndex);
+
+  if (Number.isNaN(slideIndex)) {
+    return;
+  }
+
+  if (slideIndex !== activeCarouselIndex) {
+    setCarouselSlide(slideIndex);
+    restartLunaCarouselAutoRotation();
+    return;
+  }
+
+  if (isLunaCarouselAnimating) {
+    return;
+  }
+
+  openImageViewerFromSource(slide.dataset.carouselSrc, slide.dataset.carouselAlt, slide);
+  restartLunaCarouselAutoRotation();
+}
+
+function initializeLunaCarousel() {
+  if (!lunaCarousel || !lunaCarouselSlides.length) {
+    return;
+  }
+
+  updateCarouselSlideState();
+  startLunaCarouselAutoRotation();
+
+  lunaCarouselSlides.forEach((slide) => {
+    slide.addEventListener("click", handleCarouselSlideClick);
+  });
+
+  lunaCarousel.addEventListener("mouseenter", stopLunaCarouselAutoRotation);
+  lunaCarousel.addEventListener("mouseleave", startLunaCarouselAutoRotation);
+  lunaCarousel.addEventListener("focusin", stopLunaCarouselAutoRotation);
+  lunaCarousel.addEventListener("focusout", () => {
+    window.setTimeout(() => {
+      if (!lunaCarousel.contains(document.activeElement)) {
+        startLunaCarouselAutoRotation();
+      }
+    }, 0);
+  });
 }
 
 function prefillSubscriptionIdentity() {
@@ -596,27 +1366,25 @@ function prefillSubscriptionIdentity() {
 
 function renderSubscriptionState(subscription) {
   if (!subscription) {
-    subscribeButton.textContent = "Assinar";
-    premiumButton.textContent = "Entrar na lista premium";
+    updateUserMenu();
     return;
   }
 
   const plan = subscriptionPlans[subscription.plan] || subscriptionPlans.monthly;
-  subscribeButton.textContent = "Assinatura ativa";
-  premiumButton.textContent = `${plan.label} ativo`;
-  usageHint.textContent = `Assinatura ${plan.label.toLowerCase()} de teste ativa nesta sessão.`;
+  usageHint.textContent = `Interesse ${plan.label.toLowerCase()} registrado neste navegador.`;
+  updateUserMenu();
 }
 
 async function handleSubscriptionSubmit() {
   const activeForm = getActivePaymentForm();
 
   if (!activeForm.reportValidity()) {
-    setPaymentHint("Revise os campos do pagamento de teste.", "warning");
+    setPaymentHint("Revise os campos antes de registrar o interesse.", "warning");
     return;
   }
 
   if (!subscriptionTerms.checked) {
-    setPaymentHint("Confirme que este pagamento é apenas uma simulação visual.", "warning");
+    setPaymentHint("Confirme que nenhuma cobrança será processada neste ambiente.", "warning");
     subscriptionTerms.reportValidity();
     return;
   }
@@ -630,7 +1398,7 @@ async function handleSubscriptionSubmit() {
 
   window.sessionStorage.setItem(SUBSCRIPTION_STORAGE_KEY, JSON.stringify(subscription));
   renderSubscriptionState(subscription);
-  setPaymentHint("Assinatura de teste ativada nesta sessão.", "success");
+  setPaymentHint("Interesse registrado neste navegador.", "success");
 
   if (window.LunaApi) {
     try {
@@ -639,9 +1407,9 @@ async function handleSubscriptionSubmit() {
         plan,
         paymentMethod: selectedPaymentMethod
       });
-      setPaymentHint("Intenção premium salva no backend. Nenhum pagamento foi processado.", "success");
+      setPaymentHint("Interesse salvo. Nenhum pagamento foi processado.", "success");
     } catch {
-      setPaymentHint("Assinatura visual ativa. Backend indisponível para salvar a intenção agora.", "warning");
+      setPaymentHint("Interesse registrado neste navegador. Não consegui salvar fora daqui agora.", "warning");
     }
   }
 
@@ -702,10 +1470,10 @@ async function handleSignupSubmit(event) {
 
       saveBackendSession(session);
       signupForm.reset();
-      setLoginHint("Conta criada com backend e memória persistente ativa.");
+      setLoginHint("Conta criada. Você já pode conversar com a Luna.");
       return;
     } catch (error) {
-      setLoginHint(`${error.message} Vou manter o modo visual por enquanto.`, true);
+      setLoginHint(`${error.message} Vou manter o acesso neste navegador por enquanto.`, true);
     }
   }
 
@@ -723,7 +1491,7 @@ async function handleSignupSubmit(event) {
 
   saveSiteAccount(account);
   signupForm.reset();
-  setLoginHint("Conta de teste criada nesta sessão do navegador.");
+  setLoginHint("Conta criada para este navegador.");
 }
 
 async function handleSigninSubmit(event) {
@@ -738,10 +1506,10 @@ async function handleSigninSubmit(event) {
 
       saveBackendSession(session);
       signinForm.reset();
-      setLoginHint("Entrada feita com backend e histórico persistente.");
+      setLoginHint("Entrada feita. Você já pode conversar com a Luna.");
       return;
     } catch {
-      setLoginHint("Não encontrei essa conta no backend. Vou tentar a sessão visual.", true);
+      setLoginHint("Não encontrei essa conta fora deste navegador. Vou tentar o acesso local.", true);
     }
   }
 
@@ -756,7 +1524,7 @@ async function handleSigninSubmit(event) {
 
   saveActiveProfile(getPublicSiteProfile(account));
   signinForm.reset();
-  setLoginHint("Entrada simulada nesta sessão do navegador.");
+  setLoginHint("Entrada feita neste navegador.");
 }
 
 async function handleGoogleCredential(response) {
@@ -768,15 +1536,15 @@ async function handleGoogleCredential(response) {
         const session = await window.LunaApi.google(response.credential);
 
         saveBackendSession(session);
-        setLoginHint("Login Google feito com backend.");
+        setLoginHint("Entrada com Google feita.");
         return;
       } catch (error) {
-        setLoginHint(`${error.message} Mantive o login visual do Google.`, true);
+        setLoginHint(`${error.message} Mantive o acesso do Google neste navegador.`, true);
       }
     }
 
     saveGoogleProfile(profile);
-    setLoginHint("Login feito com Google nesta sessão do navegador.");
+    setLoginHint("Entrada com Google feita neste navegador.");
   } catch {
     setLoginHint("Não foi possível ler o retorno do Google. Tente novamente.", true);
   }
@@ -804,7 +1572,7 @@ function initializeGoogleAuth() {
   }
 
   if (!hasGoogleClientId()) {
-    setLoginHint("Configure o Google Client ID em scripts/auth-config.js para ativar este botão.", true);
+    setLoginHint("Entrada com Google ainda não está disponível neste acesso.", true);
     return;
   }
 
@@ -836,31 +1604,37 @@ function initializeGoogleAuth() {
 }
 
 function toggleLoginPanel() {
+  if (!canShowAuthUi()) {
+    return;
+  }
+
   const willOpen = loginPanel.hidden;
   loginPanel.hidden = !willOpen;
   loginButton.setAttribute("aria-expanded", String(willOpen));
 
   if (willOpen) {
     setAuthMode("signup");
-    setLoginHint("Crie uma conta de teste para esta sessão.");
+    setLoginHint("Crie uma conta para continuar neste navegador.");
     initializeGoogleAuth();
   }
 }
 
 function updateUsageState() {
-  countEl.textContent = remainingMessages;
+  countEl.textContent = Number.isFinite(remainingMessages) ? remainingMessages : "∞";
   usageCard.classList.toggle("is-low", remainingMessages > 0 && remainingMessages <= LOW_MESSAGE_THRESHOLD);
   usageCard.classList.toggle("is-empty", remainingMessages === 0);
 
   if (remainingMessages === 0) {
-    usageHint.textContent = "As mensagens acabaram nesta simulação. A assinatura ainda não está ativa.";
+    usageHint.textContent = "O limite local foi atingido.";
     updateComposerAvailability();
+    updateUserMenu();
     return;
   }
 
   if (remainingMessages <= LOW_MESSAGE_THRESHOLD) {
-    usageHint.textContent = "Você está chegando ao limite simulado do beta.";
+    usageHint.textContent = "Você está chegando ao limite local.";
     updateComposerAvailability();
+    updateUserMenu();
     return;
   }
 
@@ -868,19 +1642,22 @@ function updateUsageState() {
 
   if (subscription) {
     const plan = subscriptionPlans[subscription.plan] || subscriptionPlans.monthly;
-    usageHint.textContent = `Assinatura ${plan.label.toLowerCase()} de teste ativa nesta sessão.`;
+    usageHint.textContent = `Interesse ${plan.label.toLowerCase()} registrado neste navegador.`;
     updateComposerAvailability();
+    updateUserMenu();
     return;
   }
 
   if (backendConversationActive) {
-    usageHint.textContent = "Memória e relacionamento salvos no backend.";
+    usageHint.textContent = "Continuidade ativa para esta conversa.";
     updateComposerAvailability();
+    updateUserMenu();
     return;
   }
 
-  usageHint.textContent = "Este limite é apenas uma simulação do MVP.";
+  usageHint.textContent = DEBUG_UI ? "Limite local ativo para desenvolvimento." : "";
   updateComposerAvailability();
+  updateUserMenu();
 }
 
 async function ensureBackendSession() {
@@ -912,13 +1689,11 @@ async function getBackendReply(userText) {
     const response = await window.LunaApi.sendMessage(userText);
 
     backendConversationActive = true;
+    latestRelationship = response.relationship || latestRelationship;
 
-    if (response.usedAi) {
-      usageHint.textContent = "IA, memória e relacionamento ativos no backend.";
-    } else {
-      usageHint.textContent = "Memória e relacionamento salvos no backend. IA entra quando a chave for configurada.";
-    }
+    usageHint.textContent = response.usedAi ? "Continuidade ativa para esta conversa." : "Continuidade local salva para esta conversa.";
 
+    updateUserMenu();
     return response.reply;
   } catch (error) {
     console.warn("Luna backend indisponível:", error.message);
@@ -926,13 +1701,17 @@ async function getBackendReply(userText) {
   }
 }
 
-async function replyAsLuna(forcedReply = "", userText = "") {
+async function replyAsLuna(forcedReply = "", userText = "", userMessage = null) {
   if (isLunaTyping) {
     return;
   }
 
   isLunaTyping = true;
   updateComposerAvailability();
+  setLunaPresence(true);
+  await wait(getReadingDelay(userText));
+  updateMessageStatus(userMessage, "read");
+  await wait(getComprehensionDelay(userText));
   showLunaTypingIndicator();
 
   const startedAt = Date.now();
@@ -943,12 +1722,12 @@ async function replyAsLuna(forcedReply = "", userText = "") {
   const elapsed = Date.now() - startedAt;
   const remainingTypingDelay = Math.max(320, typingDelay - elapsed);
 
-  window.setTimeout(() => {
-    hideLunaTypingIndicator();
-    addMessage(reply, "luna");
-    isLunaTyping = false;
-    updateUsageState();
-  }, remainingTypingDelay);
+  await wait(remainingTypingDelay);
+  hideLunaTypingIndicator();
+  addMessage(reply, "luna");
+  isLunaTyping = false;
+  updateUsageState();
+  updateLunaPresenceFromWindow();
 }
 
 composer.addEventListener("submit", (event) => {
@@ -960,21 +1739,31 @@ composer.addEventListener("submit", (event) => {
     return;
   }
 
-  addMessage(text, "user");
+  const userMessage = addMessage(text, "user", { status: "sent" });
   input.value = "";
   resizeComposer();
   remainingMessages -= 1;
   updateUsageState();
 
+  if (DEBUG_UI) {
+    window.setTimeout(() => {
+      if (userMessage.dataset.messageStatus === "sent") {
+        updateMessageStatus(userMessage, "delivered");
+      }
+    }, 620);
+  }
+
   if (remainingMessages === 0) {
-    replyAsLuna("acabaram as mensagens de hoje por aqui. amanhã a gente continua.");
+    replyAsLuna("acabaram as mensagens de hoje por aqui. amanhã a gente continua.", text, userMessage);
     return;
   }
 
-  replyAsLuna("", text);
+  replyAsLuna("", text, userMessage);
 });
 
 input.addEventListener("input", resizeComposer);
+
+input.addEventListener("input", updateSuggestionVisibility);
 
 input.addEventListener("paste", () => {
   window.requestAnimationFrame(resizeComposer);
@@ -991,12 +1780,88 @@ input.addEventListener("keydown", (event) => {
   }
 });
 
+if (DEBUG_UI) {
+  window.addEventListener("focus", setLunaOnline);
+  window.addEventListener("blur", setLunaLastSeen);
+  document.addEventListener("visibilitychange", updateLunaPresenceFromWindow);
+}
+
 loginButton.addEventListener("click", toggleLoginPanel);
+
+menuToggle.addEventListener("click", () => {
+  if (userMenuOverlay.hidden) {
+    openUserMenu("account");
+    return;
+  }
+
+  closeUserMenu();
+});
+
+userMenuClose.addEventListener("click", closeUserMenu);
+
+userMenuOverlay.addEventListener("click", (event) => {
+  if (event.target === userMenuOverlay) {
+    closeUserMenu();
+  }
+});
+
+userMenuTabs.forEach((tab) => {
+  tab.addEventListener("click", () => {
+    setUserMenuTab(tab.dataset.menuTab);
+  });
+});
+
+profilePhotoInput.addEventListener("change", () => {
+  const file = profilePhotoInput.files?.[0];
+
+  if (!file) {
+    return;
+  }
+
+  const reader = new FileReader();
+
+  reader.addEventListener("load", () => {
+    const photo = String(reader.result || "");
+
+    if (!photo) {
+      return;
+    }
+
+    window.sessionStorage.setItem(PROFILE_PHOTO_STORAGE_KEY, photo);
+    const profile = loadStoredProfile() || { source: "visual", name: "Visitante" };
+    renderSignedInState(profile);
+    updateUserMenu();
+  });
+
+  reader.readAsDataURL(file);
+});
+
+menuAccountLogin.addEventListener("click", () => {
+  closeUserMenu();
+
+  if (!loginButton.hidden) {
+    toggleLoginPanel();
+  }
+});
+
+menuAccountPremium.addEventListener("click", () => {
+  closeUserMenu();
+  openSubscriptionModal();
+});
+
+chatSuggestionButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    input.value = button.dataset.chatSuggestion || button.textContent.trim();
+    resizeComposer();
+    updateSuggestionVisibility();
+    focusConversation();
+  });
+});
 
 accountTabs.forEach((tab) => {
   tab.addEventListener("click", () => {
     setAuthMode(tab.dataset.authMode);
-    setLoginHint(tab.dataset.authMode === "signup" ? "Crie uma conta de teste para esta sessão." : "Entre com a conta criada nesta sessão.");
+    setLoginHint(tab.dataset.authMode === "signup" ? "Crie uma conta para continuar neste navegador." : "Entre com a conta criada neste navegador.");
   });
 });
 
@@ -1004,11 +1869,9 @@ signupForm.addEventListener("submit", handleSignupSubmit);
 signinForm.addEventListener("submit", handleSigninSubmit);
 
 forgotPasswordButton.addEventListener("click", () => {
-  setLoginHint("Recuperação de senha entra na etapa de backend.", true);
+  setLoginHint("Recuperação de senha ainda não está disponível neste acesso.", true);
 });
 
-subscribeButton.addEventListener("click", openSubscriptionModal);
-premiumButton.addEventListener("click", openSubscriptionModal);
 subscriptionClose.addEventListener("click", closeSubscriptionModal);
 
 subscriptionOverlay.addEventListener("click", (event) => {
@@ -1017,9 +1880,39 @@ subscriptionOverlay.addEventListener("click", (event) => {
   }
 });
 
+initializeLunaCarousel();
+
 document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape" && !subscriptionOverlay.hidden) {
+  if (event.key !== "Escape") {
+    return;
+  }
+
+  if (!imageViewer.hidden) {
+    closeImageViewer();
+    return;
+  }
+
+  if (!userMenuOverlay.hidden) {
+    closeUserMenu();
+    return;
+  }
+
+  if (!subscriptionOverlay.hidden) {
     closeSubscriptionModal();
+  }
+});
+
+imageViewerTriggers.forEach((trigger) => {
+  trigger.addEventListener("click", () => {
+    openImageViewer(trigger);
+  });
+});
+
+imageViewerClose.addEventListener("click", closeImageViewer);
+
+imageViewer.addEventListener("click", (event) => {
+  if (event.target === imageViewer) {
+    closeImageViewer();
   }
 });
 
@@ -1059,19 +1952,45 @@ pixPaymentForm.addEventListener("submit", (event) => {
 
 subscriptionSubmit.addEventListener("click", handleSubscriptionSubmit);
 
+supportTopicButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    const topic = button.dataset.supportTopic;
+    const reply = supportReplies[topic];
+
+    appendSupportMessage(button.textContent.trim(), "user");
+    window.setTimeout(() => appendSupportMessage(reply, "bot"), 260);
+  });
+});
+
+supportForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  sendSupportMessage(supportInput.value);
+  supportInput.value = "";
+});
+
 logoutButton.addEventListener("click", () => {
   window.sessionStorage.removeItem(AUTH_PROFILE_STORAGE_KEY);
   window.sessionStorage.removeItem(BACKEND_SESSION_STORAGE_KEY);
   window.sessionStorage.removeItem(LEGACY_GOOGLE_STORAGE_KEY);
+  window.sessionStorage.removeItem(PROFILE_PHOTO_STORAGE_KEY);
   window.LunaApi?.clearToken();
   window.google?.accounts?.id?.disableAutoSelect();
   renderSignedOutState();
 });
 
+applyDebugUi();
+applyPublicFeatureVisibility();
+hydrateInitialMessageTimes();
+
+if (DEBUG_UI) {
+  updateLunaPresenceFromWindow();
+}
+
 updateUsageState();
 resizeComposer();
 updateSelectedPlan();
 renderSubscriptionState(loadSubscription());
+updateSuggestionVisibility();
 
 const storedBackendSession = loadBackendSession();
 

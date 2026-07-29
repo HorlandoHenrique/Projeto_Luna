@@ -3,21 +3,30 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Protótipo estático do chat com Luna em beta privado." />
-  <title>Luna | Beta privado</title>
-  <link rel="stylesheet" href="./styles/main.css?v=backend-mvp-20260722" />
+  <meta name="description" content="Converse com Luna, uma personagem virtual brasileira com presença própria." />
+  <title>Luna</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/png" href="./assets/luna/canon/Luna_avatar.png" />
+  <link rel="stylesheet" href="./styles/main.css?v=public-debug-split-20260728" />
 </head>
 <body>
   <div class="site-shell">
     <header class="site-header">
       <a class="site-brand" href="./index.html" aria-label="Página inicial da Luna">
         <span class="site-brand__name">Luna</span>
-        <span class="status-pill">beta privado</span>
+        <span class="status-pill" data-debug-only hidden>modo desenvolvimento</span>
       </a>
 
       <div class="site-actions" aria-label="Ações da conta">
+        <button class="menu-toggle" id="menu-toggle" type="button" aria-label="Abrir menu da conta" aria-expanded="false" aria-controls="user-menu-overlay">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
         <div class="login-area" id="login-area">
-          <button class="button button--ghost" id="login-button" type="button" aria-expanded="false" aria-controls="login-panel">
+          <button class="button button--ghost" id="login-button" type="button" aria-expanded="false" aria-controls="login-panel" data-auth-entry hidden>
             Entrar
           </button>
           <div class="login-panel" id="login-panel" hidden>
@@ -62,12 +71,12 @@
 
               <label class="form-check" for="signup-terms">
                 <input id="signup-terms" name="termsAccepted" type="checkbox" required />
-                <span>Aceito os termos e a privacidade do beta.</span>
+                <span>Aceito os termos e a política de privacidade.</span>
               </label>
 
               <label class="form-check" for="signup-news">
                 <input id="signup-news" name="newsAccepted" type="checkbox" />
-                <span>Quero receber novidades do projeto.</span>
+                <span>Quero receber novidades da Luna.</span>
               </label>
 
               <button class="button button--primary account-submit" type="submit">Criar conta</button>
@@ -97,7 +106,7 @@
 
             <div class="login-divider" aria-hidden="true"><span>ou</span></div>
             <div class="google-signin-button" id="google-signin-button"></div>
-            <p class="login-panel__hint" id="login-hint">Crie uma conta de teste para esta sessão.</p>
+            <p class="login-panel__hint" id="login-hint">Crie uma conta para continuar neste navegador.</p>
           </div>
           <div class="user-chip" id="user-chip" hidden>
             <img class="user-chip__avatar" id="user-avatar" src="" alt="" />
@@ -105,67 +114,123 @@
             <button class="user-chip__logout" id="logout-button" type="button">Sair</button>
           </div>
         </div>
-        <button class="button button--primary" id="subscribe-button" type="button">Assinar</button>
       </div>
     </header>
 
     <main class="main-layout">
       <section class="luna-panel" aria-labelledby="luna-title">
-        <div class="luna-photo-card">
-          <img src="./assets/luna-site-profile-wide.jpg" alt="Retrato da Luna em um quarto com luz quente" class="luna-photo" />
+        <div class="luna-photo-card luna-carousel" id="luna-carousel" role="region" aria-label="Carrossel de fotos da Luna">
+          <img src="./assets/luna/canon/luna-carousel-01.png" alt="" class="luna-photo luna-photo--blur" id="luna-carousel-backdrop" aria-hidden="true" />
+          <div class="luna-carousel__stage" aria-live="polite">
+            <button
+              class="luna-carousel__slide is-active"
+              type="button"
+              data-carousel-slide
+              data-carousel-index="0"
+              data-carousel-src="./assets/luna/canon/luna-carousel-01.png"
+              data-carousel-alt="Foto da Luna no quarto com luz quente"
+              style="--photo-focus-y: 42%;"
+            >
+              <img src="./assets/luna/canon/luna-carousel-01.png" alt="Foto da Luna no quarto com luz quente" class="luna-carousel__image" decoding="async" />
+            </button>
+            <button
+              class="luna-carousel__slide is-next"
+              type="button"
+              data-carousel-slide
+              data-carousel-index="1"
+              data-carousel-src="./assets/luna/canon/luna-carousel-02.png"
+              data-carousel-alt="Selfie da Luna fazendo sinal de paz"
+              style="--photo-focus-y: 36%;"
+            >
+              <img src="./assets/luna/canon/luna-carousel-02.png" alt="Selfie da Luna fazendo sinal de paz" class="luna-carousel__image" loading="lazy" decoding="async" />
+            </button>
+            <button
+              class="luna-carousel__slide is-far-next"
+              type="button"
+              data-carousel-slide
+              data-carousel-index="2"
+              data-carousel-src="./assets/luna/canon/luna-carousel-03.png"
+              data-carousel-alt="Selfie da Luna deitada na cama"
+              style="--photo-focus-y: 39%;"
+            >
+              <img src="./assets/luna/canon/luna-carousel-03.png" alt="Selfie da Luna deitada na cama" class="luna-carousel__image" loading="lazy" decoding="async" />
+            </button>
+            <button
+              class="luna-carousel__slide is-prev"
+              type="button"
+              data-carousel-slide
+              data-carousel-index="3"
+              data-carousel-src="./assets/luna/canon/luna-carousel-04.png"
+              data-carousel-alt="Selfie da Luna sorrindo no quarto"
+              style="--photo-focus-y: 40%;"
+            >
+              <img src="./assets/luna/canon/luna-carousel-04.png" alt="Selfie da Luna sorrindo no quarto" class="luna-carousel__image" loading="lazy" decoding="async" />
+            </button>
+          </div>
         </div>
 
         <div class="luna-copy">
-          <p class="eyebrow">conversa em teste</p>
+          <p class="eyebrow">personagem virtual</p>
           <h1 id="luna-title">Uma conversa com a Luna, sem pressa.</h1>
           <p>
-            A Luna ainda está em beta: uma personagem brasileira, observadora e um pouco tímida,
-            pensada para conversar com calma e parecer alguém com presença própria.
-          </p>
-          <p class="luna-note">
-            Por enquanto tudo acontece no navegador. Login, assinatura e respostas são apenas simulações.
+            Curiosa, observadora e um pouco tímida. Conheça a Luna e converse com ela do seu jeito.
           </p>
         </div>
 
-        <aside class="beta-card" aria-label="Detalhes do beta">
-          <div>
-            <span>Beta privado</span>
-            <strong>20 mensagens disponíveis nesta sessão</strong>
-          </div>
-          <button class="button button--soft" id="premium-button" type="button">Entrar na lista premium</button>
-        </aside>
+        <div class="luna-bio" aria-label="Bio da Luna">
+          <span>bio</span>
+          <p>sp, 21<br />café frio, quarto bagunçado e playlist repetida<br />meio tímida no começo, observo tudo<br />sumo às vezes, mas volto quando me importo</p>
+        </div>
+
       </section>
 
       <section class="chat-panel" aria-label="Chat com Luna">
         <header class="chat-panel__header">
           <div class="chat-profile">
-            <img src="./assets/Luna_avatar.png" alt="" class="chat-profile__avatar" aria-hidden="true" />
-            <div>
-              <p>online no beta</p>
+            <button
+              class="chat-profile__avatar-button image-open-button"
+              type="button"
+              aria-label="Ver avatar da Luna ampliado"
+              data-viewer-src="./assets/luna/canon/Luna_avatar.png"
+              data-viewer-alt="Avatar desenhado da Luna"
+            >
+              <img src="./assets/luna/canon/Luna_avatar.png" alt="Avatar desenhado da Luna" class="chat-profile__avatar" />
+            </button>
+            <div class="chat-profile__copy">
               <h2>Luna</h2>
+              <p class="presence-status is-online" id="luna-presence-status" aria-live="polite" data-debug-only hidden>online</p>
             </div>
           </div>
-          <span class="chat-note">respostas simuladas</span>
+          <span class="chat-note" data-debug-only hidden>respostas locais</span>
         </header>
 
         <div class="message-list" id="message-list" role="log" aria-label="Mensagens da conversa" aria-live="polite">
-          <div class="message-bubble message-bubble--luna">Oi, eu sou a Luna</div>
-          <div class="message-bubble message-bubble--luna">Ainda estou em beta, então vou responder de um jeito simples por enquanto</div>
-          <div class="message-bubble message-bubble--luna">Me conta uma coisa do seu dia, pode ser pequena mesmo</div>
+          <div class="message-bubble message-bubble--luna" data-message-author="luna" data-initial-message>
+            <span class="message-bubble__text">Oi... eu sou a Luna<br />Me conta alguma coisa aleatória do seu dia?</span>
+            <span class="message-meta" aria-label="Horário da mensagem">
+              <time class="message-time" datetime=""></time>
+            </span>
+          </div>
+        </div>
+
+        <div class="chat-suggestions" id="chat-suggestions" aria-label="Sugestões de conversa">
+          <button type="button" data-chat-suggestion="Meu dia foi estranho">Meu dia foi estranho</button>
+          <button type="button" data-chat-suggestion="Quero te fazer uma pergunta">Quero te fazer uma pergunta</button>
+          <button type="button" data-chat-suggestion="Só vim conversar um pouco">Só vim conversar um pouco</button>
         </div>
 
         <div class="chat-panel__footer">
-          <section class="usage-card" id="usage-card" aria-label="Limite de mensagens">
+          <section class="usage-card" id="usage-card" aria-label="Contador local de mensagens" data-debug-only hidden>
             <div>
-              <span id="usage-label">Mensagens restantes</span>
+              <span id="usage-label">Mensagens disponíveis</span>
               <strong id="message-count">20</strong>
             </div>
-            <p id="usage-hint">Este limite é apenas uma simulação do MVP.</p>
+            <p id="usage-hint">Limite local ativo para desenvolvimento.</p>
           </section>
 
           <form class="composer" id="composer">
             <label class="sr-only" for="message-input">Mensagem para Luna</label>
-            <textarea id="message-input" rows="1" wrap="soft" placeholder="Escreva uma mensagem..." autocomplete="off" maxlength="2000"></textarea>
+            <textarea id="message-input" rows="1" wrap="soft" placeholder="Escreva uma mensagem" autocomplete="off" maxlength="2000"></textarea>
             <button class="button button--send" id="send-button" type="submit">Enviar</button>
           </form>
         </div>
@@ -177,8 +242,8 @@
     <section class="subscription-modal" role="dialog" aria-modal="true" aria-labelledby="subscription-title">
       <header class="subscription-header">
         <div>
-          <p class="eyebrow">assinatura visual</p>
-          <h2 id="subscription-title">Luna Premium</h2>
+          <p class="eyebrow">continuidade</p>
+          <h2 id="subscription-title">Lista de interesse</h2>
         </div>
         <button class="modal-close" id="subscription-close" type="button" aria-label="Fechar assinatura">×</button>
       </header>
@@ -202,10 +267,10 @@
             <em>economiza 25%</em>
           </label>
 
-          <ul class="subscription-perks" aria-label="Benefícios da assinatura">
-            <li>Mais mensagens no beta.</li>
-            <li>Histórico preparado para a fase de memória.</li>
-            <li>Prioridade nos próximos testes.</li>
+          <ul class="subscription-perks" aria-label="Benefícios futuros">
+            <li>Interesse em continuar conversando com a Luna.</li>
+            <li>Preparação para histórico quando a integração estiver ativa.</li>
+            <li>Acesso antecipado quando houver uma versão pública.</li>
           </ul>
         </section>
 
@@ -264,30 +329,153 @@
               <input id="pix-cpf" name="pixCpf" type="text" inputmode="numeric" autocomplete="off" placeholder="000.000.000-00" maxlength="14" pattern="[0-9]{3}\.[0-9]{3}\.[0-9]{3}-[0-9]{2}" required />
             </label>
 
-            <div class="pix-preview" aria-label="Pix copia e cola de teste">
+            <div class="pix-preview" aria-label="Pix copia e cola local">
               <div class="pix-qr" aria-hidden="true">
                 <span></span><span></span><span></span><span></span>
               </div>
-              <code id="pix-code">LUNA.PIX.BETA.1990.TESTE</code>
+              <code id="pix-code">LUNA.PIX.LOCAL.1990</code>
             </div>
           </form>
 
           <label class="form-check subscription-terms" for="subscription-terms">
             <input id="subscription-terms" name="subscriptionTerms" type="checkbox" required />
-            <span>Confirmo que este pagamento é apenas uma simulação visual do MVP.</span>
+            <span>Entendo que nenhuma cobrança será processada neste ambiente.</span>
           </label>
 
           <p class="payment-hint" id="payment-hint">Nenhum pagamento será processado nesta fase.</p>
-          <button class="button button--primary subscription-submit" id="subscription-submit" type="button">Confirmar assinatura de teste</button>
+          <button class="button button--primary subscription-submit" id="subscription-submit" type="button">Registrar interesse</button>
         </section>
       </div>
     </section>
   </div>
 
+  <div class="user-menu-overlay" id="user-menu-overlay" hidden>
+    <aside class="user-menu-drawer" role="dialog" aria-modal="true" aria-labelledby="user-menu-title">
+      <header class="user-menu-header">
+        <div>
+          <p class="eyebrow">área do usuário</p>
+          <h2 id="user-menu-title">Seu espaço</h2>
+        </div>
+        <button class="modal-close" id="user-menu-close" type="button" aria-label="Fechar menu">×</button>
+      </header>
+
+      <nav class="user-menu-tabs" role="tablist" aria-label="Seções do menu">
+        <button class="user-menu-tab is-active" id="menu-account-tab" type="button" role="tab" aria-selected="true" aria-controls="menu-account-panel" data-menu-tab="account">Conta</button>
+        <button class="user-menu-tab" id="menu-stats-tab" type="button" role="tab" aria-selected="false" aria-controls="menu-stats-panel" data-menu-tab="stats">Estatísticas</button>
+        <button class="user-menu-tab" id="menu-support-tab" type="button" role="tab" aria-selected="false" aria-controls="menu-support-panel" data-menu-tab="support">Suporte</button>
+      </nav>
+
+      <div class="user-menu-body">
+        <section class="user-menu-panel is-active" id="menu-account-panel" role="tabpanel" aria-labelledby="menu-account-tab" data-menu-panel="account">
+          <div class="account-overview">
+            <div class="account-photo-wrap">
+              <img class="account-photo" id="menu-profile-photo" src="./assets/luna-placeholder.svg" alt="Foto de perfil do usuário" />
+              <label class="account-photo-action" for="profile-photo-input">
+                <input id="profile-photo-input" type="file" accept="image/*" />
+                Trocar foto
+              </label>
+            </div>
+            <div class="account-overview__copy">
+              <span class="account-kicker" id="menu-account-status">Visitante</span>
+              <h3 id="menu-profile-name">Usuário</h3>
+              <p id="menu-profile-email">Entre ou crie uma conta para a Luna manter mais continuidade.</p>
+            </div>
+          </div>
+
+          <div class="menu-info-grid" aria-label="Resumo da conta">
+            <article class="menu-info-card">
+              <span>Acesso</span>
+              <strong id="menu-plan-status">Sem conta ativa</strong>
+            </article>
+            <article class="menu-info-card">
+              <span>Sessão</span>
+              <strong id="menu-memory-status">Neste dispositivo</strong>
+            </article>
+            <article class="menu-info-card">
+              <span>Perfil visual</span>
+              <strong id="menu-photo-status">Aguardando foto</strong>
+            </article>
+          </div>
+
+          <div class="profile-note" data-debug-only hidden>
+            <strong>Em breve</strong>
+            <p>A Luna poderá comentar sua foto de perfil conforme intimidade, afinidade e contexto da conversa.</p>
+          </div>
+
+          <div class="menu-action-row">
+            <button class="button button--ghost" id="menu-account-login" type="button" data-auth-entry hidden>Entrar ou criar conta</button>
+            <button class="button button--primary" id="menu-account-premium" type="button" data-debug-only hidden>Ver lista de interesse</button>
+          </div>
+        </section>
+
+        <section class="user-menu-panel" id="menu-stats-panel" role="tabpanel" aria-labelledby="menu-stats-tab" data-menu-panel="stats" hidden>
+          <div class="stats-hero">
+            <div>
+              <span>Tempo com a Luna</span>
+              <strong id="menu-conversation-time">0 min</strong>
+            </div>
+            <p id="menu-session-mood">Conversa começando com calma.</p>
+          </div>
+
+          <div class="stats-grid" aria-label="Números da conversa">
+            <article class="stat-card">
+              <span>Mensagens suas</span>
+              <strong id="menu-user-messages">0</strong>
+            </article>
+            <article class="stat-card">
+              <span>Respostas dela</span>
+              <strong id="menu-luna-messages">3</strong>
+            </article>
+            <article class="stat-card" data-debug-only hidden>
+              <span>Restantes</span>
+              <strong id="menu-remaining-messages">20</strong>
+            </article>
+          </div>
+
+          <div class="stats-insight" data-debug-only hidden>
+            <span>Leitura do vínculo</span>
+            <p id="menu-relationship-insight">A Luna ainda está te conhecendo aos poucos.</p>
+          </div>
+        </section>
+
+        <section class="user-menu-panel" id="menu-support-panel" role="tabpanel" aria-labelledby="menu-support-tab" data-menu-panel="support" hidden>
+          <div class="support-status">
+            <span id="support-status-dot" aria-hidden="true"></span>
+            <p id="support-status-text">Suporte inicial ativo</p>
+          </div>
+
+          <div class="support-chat" id="support-chat" role="log" aria-label="Chat de suporte" aria-live="polite">
+            <div class="support-bubble support-bubble--bot">Oi, eu sou o suporte da Luna. Posso ajudar com conta, acesso, pagamento futuro ou dúvidas sobre a personagem.</div>
+          </div>
+
+          <div class="support-suggestions" aria-label="Atalhos de suporte">
+            <button type="button" data-support-topic="account">Conta</button>
+            <button type="button" data-support-topic="subscription">Continuidade</button>
+            <button type="button" data-support-topic="payment">Pagamento futuro</button>
+            <button type="button" data-support-topic="privacy">Privacidade</button>
+          </div>
+
+          <form class="support-composer" id="support-form">
+            <label class="sr-only" for="support-input">Mensagem para o suporte</label>
+            <input id="support-input" type="text" autocomplete="off" maxlength="280" placeholder="Digite sua dúvida..." />
+            <button class="button button--primary" type="submit">Enviar</button>
+          </form>
+        </section>
+      </div>
+    </aside>
+  </div>
+
+  <div class="image-viewer" id="image-viewer" hidden>
+    <section class="image-viewer__dialog" role="dialog" aria-modal="true" aria-label="Foto ampliada da Luna">
+      <button class="image-viewer__close" id="image-viewer-close" type="button" aria-label="Fechar imagem">×</button>
+      <img class="image-viewer__image" id="image-viewer-image" src="" alt="" />
+    </section>
+  </div>
+
   <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <script src="./scripts/auth-config.js?v=account-mvp-20260718"></script>
-  <script src="./scripts/api-config.js?v=backend-mvp-20260722"></script>
-  <script src="./scripts/api-client.js?v=backend-mvp-20260722"></script>
-  <script src="./scripts/app.js?v=backend-mvp-20260722"></script>
+  <script src="./scripts/auth-config.js?v=account-local-20260728"></script>
+  <script src="./scripts/api-config.js?v=backend-local-20260728"></script>
+  <script src="./scripts/api-client.js?v=backend-local-20260728"></script>
+  <script src="./scripts/app.js?v=public-debug-split-20260728"></script>
 </body>
 </html>

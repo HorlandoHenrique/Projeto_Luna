@@ -1,50 +1,91 @@
 # MVP
 
-O MVP deve ser pequeno, porém extremamente polido.
+O MVP deve ser pequeno, controlado e extremamente polido.
 
-Prioridades:
+O site atual deve permanecer privado ou com acesso controlado enquanto a
+conversa da Luna ainda nao representar fielmente a personagem.
 
-- personalidade
-- aparência
-- chat
-- memória básica
-- interface bonita
+Uma interface bonita com respostas ruins pode prejudicar mais a Luna do que uma
+interface ainda incompleta.
 
-Não lançar produto cheio de funcionalidades mal feitas.
+## Prioridade Atual
 
-Frontend:
+1. Refazer a direcao visual do site.
+2. Remover aparencia de prototipo, dashboard e ferramenta de IA.
+3. Inserir imagem canonica temporaria da Luna.
+4. Melhorar apresentacao do chat simulado para desenvolvimento privado.
+5. Criar estrutura correta para conectar IA.
+6. Implementar backend, sessoes e historico.
+7. Implementar memoria e estado do relacionamento.
+8. Realizar testes privados.
+9. Somente depois implementar monetizacao e abertura maior ao publico.
 
-- foto da Luna
-- chat
-- login
-- contador de mensagens
-- botão premium
+## Etapa 1 - Interface E Identidade
 
-Backend:
+- redesign escuro, quente e intimo
+- desktop-first e responsivo
+- remover linguagem de prototipo da interface publica
+- implementar e respeitar `DEBUG_UI`
+- inserir imagem canonica temporaria
+- melhorar avatar
+- simplificar apresentacao
+- melhorar estado vazio do chat
+- manter acesso privado
 
-- usuários
-- mensagens
-- memória
-- relacionamento
+## Etapa 2 - Nucleo Da IA
 
-Semana 1:
+- criar backend controlado para o chat
+- integrar provedor inicial de IA
+- criar abstracao de provedores
+- montar prompt em camadas
+- validar respostas
+- impedir exposicao direta da chave da API
+- registrar erros e latencia internamente
 
-- chat
-- personalidade
-- memória básica
-- eixos
+## Etapa 3 - Usuarios E Continuidade
 
-Semana 2:
+- sessoes
+- login real
+- banco de dados
+- historico
+- recuperacao de conversa
+- identificacao consistente do usuario
 
-- memória persistente
-- login
-- histórico
+## Etapa 4 - Relacionamento E Memoria
 
-Semana 3:
+- intimidade
+- afinidade
+- conforto
+- memorias prioritarias
+- recuperacao de memorias relevantes
+- atualizacao controlada dos eixos
+- esquecimento e consolidacao
 
-- landing page
-- lista de espera
+## Etapa 5 - Presenca
 
-Semana 4:
+- tempo de digitacao
+- mensagens em multiplas bolhas
+- disponibilidade
+- continuidade da rotina
+- ausencias coerentes
+- mensagens iniciadas pela Luna
+- notificacoes opcionais
 
-- primeiros usuários
+## Etapa 6 - Testes Privados
+
+- pequeno grupo de usuarios
+- analise das conversas
+- medicao de retorno
+- avaliacao de coerencia
+- correcao de falhas
+- observacao de comportamentos inesperados
+
+## Etapa 7 - Monetizacao
+
+- limite real de uso
+- planos reais
+- pagamento integrado
+- beneficios claramente implementados
+- controle de custos
+- protecao contra abuso
+- abertura gradual

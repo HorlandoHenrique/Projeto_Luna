@@ -1,19 +1,37 @@
-# Assinatura e Pagamento
+# Assinatura E Pagamento
 
-Este documento separa o espaco de assinatura visual do MVP do que precisa existir quando o Projeto Luna validar pagamento real.
+Este documento separa o que pode existir em desenvolvimento interno do que pode
+aparecer para o usuario comum.
 
-## Agora: MVP Frontend
+## Interface Publica
 
-- Abrir um espaco de assinatura ao clicar em `Assinar` ou no botao premium.
-- Mostrar planos mensal e anual.
-- Aceitar visualmente cartao de credito e Pix.
-- Validar campos obrigatorios no navegador.
-- Marcar assinatura de teste ativa apenas na sessao do navegador.
-- Nao processar pagamento real.
-- Nao enviar dados para servidor.
-- Nao salvar numero de cartao, CVV, CPF ou dados de Pix.
+Enquanto pagamentos nao estiverem funcionando, remover da interface publica:
 
-## Campos Do MVP
+- Assinar;
+- Comprar plano;
+- lista premium apresentada como assinatura;
+- precos ficticios;
+- planos sem integracao;
+- beneficios que ainda nao existem.
+
+A monetizacao deve aparecer apenas depois que o usuario percebeu valor, existe
+limite real ou ha intencao clara de continuidade.
+
+## Modo Interno: DEBUG_UI
+
+Com `DEBUG_UI` ativo, o frontend pode manter um fluxo visual para testar:
+
+- modal de assinatura;
+- escolha de plano;
+- campos de cartao;
+- campos de Pix;
+- validacao visual;
+- intencao de assinatura.
+
+Esse fluxo nao processa pagamento real e nao deve ser mostrado como produto
+pronto.
+
+## Campos De Teste Interno
 
 Cartao:
 

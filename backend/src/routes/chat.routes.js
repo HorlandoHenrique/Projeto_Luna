@@ -112,6 +112,9 @@ export default async function chatRoutes(fastify) {
         metadata: JSON.stringify({
           tone: lunaReply.tone,
           usedAi: lunaReply.usedAi,
+          provider: lunaReply.provider,
+          model: lunaReply.model,
+          responseId: lunaReply.responseId,
           safety,
           aiError: lunaReply.error
         })
@@ -124,7 +127,9 @@ export default async function chatRoutes(fastify) {
       relationship,
       capturedMemories,
       safety,
-      usedAi: lunaReply.usedAi
+      usedAi: lunaReply.usedAi,
+      provider: lunaReply.provider,
+      model: lunaReply.model
     };
   });
 }

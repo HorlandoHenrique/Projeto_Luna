@@ -13,7 +13,7 @@ Ele inclui:
 - estado de relacionamento com intimidade, afinidade e conforto;
 - limites de seguranca basicos;
 - lista de espera e intencao de assinatura;
-- integracao OpenAI opcional via `OPENAI_API_KEY`.
+- integracao OpenAI opcional via `LUNA_MODEL_PROVIDER="openai"` e `OPENAI_API_KEY`.
 
 ## Configuracao
 
@@ -50,3 +50,20 @@ http://127.0.0.1:5173
 ```
 
 Sem `OPENAI_API_KEY`, a API usa respostas locais de fallback e ainda grava mensagens, memoria e relacionamento.
+
+## IA no MVP
+
+O chat principal usa uma chamada normal de modelo controlada pelo backend. Nao ha agente autonomo nesta etapa.
+
+Fluxo atual:
+
+1. recebe a mensagem do usuario;
+2. avalia sinais basicos de seguranca;
+3. grava a mensagem;
+4. captura memorias simples;
+5. atualiza intimidade, afinidade e conforto;
+6. monta o prompt canonico da Luna;
+7. chama o provedor configurado;
+8. grava a resposta com metadados de IA.
+
+O provedor pode ser trocado depois sem reescrever o nucleo da Luna.

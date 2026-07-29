@@ -34,7 +34,9 @@ export function buildApp() {
 
   app.get("/health", async () => ({
     ok: true,
-    ai: Boolean(config.openaiApiKey),
+    ai: config.lunaModelProvider === "openai" && Boolean(config.openaiApiKey),
+    modelProvider: config.lunaModelProvider === "openai" && config.openaiApiKey ? "openai" : "local",
+    model: config.lunaModelProvider === "openai" && config.openaiApiKey ? config.openaiModel : "local-fallback",
     database: "sqlite"
   }));
 

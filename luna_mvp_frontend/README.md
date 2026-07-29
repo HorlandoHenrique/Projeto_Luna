@@ -1,17 +1,20 @@
-# Luna MVP Frontend
+# Luna Frontend
 
-Frontend inicial do Projeto Luna. Ele pode rodar sozinho em modo visual, mas agora tenta usar o backend local quando disponível.
+Frontend atual do Projeto Luna. Ele pode rodar sozinho para desenvolvimento
+privado e tenta usar o backend local quando disponível.
+
+A interface pública não deve exibir funções simuladas, informações internas ou
+estados que ainda não possuem sistema real por trás.
 
 ## Arquivos Principais
 
 ```text
 luna_mvp_frontend/
 |-- assets/
-|   |-- Luna_avatar.png
-|   |-- luna-placeholder.svg
-|   |-- luna-site-avatar.jpg
-|   |-- luna-site-profile-wide.jpg
-|   `-- luna-site-profile.jpg
+|   |-- luna/
+|   |   |-- canon/
+|   |   `-- experiments/
+|   `-- luna-placeholder.svg
 |-- ACCOUNT_REQUIREMENTS.md
 |-- SUBSCRIPTION_REQUIREMENTS.md
 |-- scripts/
@@ -51,35 +54,39 @@ A tela atual é um site desktop-first:
 - painel visual da Luna;
 - painel de chat amplo;
 - tema escuro quente;
-- contador de mensagens;
-- cadastro próprio simulado, entrada simulada e login com Google opcional;
-- assinatura simulada com cartão de crédito e Pix visuais;
+- menu de usuário, estatísticas locais e suporte inicial;
+- `DEBUG_UI` para contadores e simulações internas;
+- login exibido apenas com API configurada ou em modo interno;
+- assinatura visual restrita ao modo interno;
 - integração opcional com backend para histórico, memória e relacionamento.
 
 O mobile continua responsivo, mas não é o foco visual principal.
 
 ## Imagem da Luna
 
-A interface usa `assets/luna-site-profile-wide.jpg` no painel principal e `assets/Luna_avatar.png` no avatar do chat. O avatar vem de `Luna_visual/00_canon/Luna_avatar.png`. O SVG antigo continua na pasta apenas como placeholder de segurança.
+A interface usa imagens em `assets/luna/canon/` como canônicas temporárias. O
+SVG antigo continua na pasta apenas como placeholder de segurança. Imagens de
+teste devem ficar em `assets/luna/experiments/` e não entram automaticamente no
+site.
 
 ## Cadastro E Login
 
-O frontend possui um fluxo de conta para o MVP estático:
+Cadastro e login só devem aparecer para o usuário comum quando houver API
+configurada. Em desenvolvimento, `DEBUG_UI` pode mostrar o fluxo visual para
+testes internos.
 
-- criar conta própria do site com nome, e-mail, senha, confirmação de senha, maioridade, aceite de termos/privacidade e opt-in de novidades;
-- entrar com a conta criada na mesma sessão do navegador;
-- sair da sessão visual;
-- continuar com Google como alternativa.
-
-Quando o backend está rodando, o cadastro cria usuário real no SQLite local. Sem backend, o fluxo visual antigo continua usando `sessionStorage`.
+Quando o backend está rodando, o cadastro cria usuário real no SQLite local.
+Sem backend, o fluxo visual deve permanecer oculto fora de `DEBUG_UI`.
 
 Os requisitos de conta agora e futuros estão em `ACCOUNT_REQUIREMENTS.md`.
 
 ## Assinatura
 
-O botão `Assinar` abre um espaço de assinatura visual com plano mensal, plano anual, cartão de crédito e Pix.
+Assinatura, planos, preços, cartão e Pix não devem aparecer na interface pública
+enquanto não houver pagamento real e benefício implementado.
 
-Nesta fase, nenhum pagamento é processado. O frontend valida os campos, marca uma assinatura de teste na sessão do navegador e pode salvar uma intenção de assinatura no backend. Ele não salva número de cartão, CVV, CPF ou dados de Pix.
+O fluxo visual permanece apenas para desenvolvimento interno com `DEBUG_UI`.
+Ele não salva número de cartão, CVV, CPF ou dados de Pix.
 
 Os requisitos de assinatura agora e futuros estão em `SUBSCRIPTION_REQUIREMENTS.md`.
 
@@ -121,4 +128,6 @@ luna_mvp_frontend/scripts/api-config.js
 
 ## Limites Desta Fase
 
-Ainda não há pagamento real, produção, painel administrativo ou treinamento/fine-tuning. A IA depende de `OPENAI_API_KEY`; sem chave, o backend usa fallback local.
+Ainda não há pagamento real, produção pública ampla, painel administrativo ou
+treinamento/fine-tuning. A IA depende de `OPENAI_API_KEY`; sem chave, o backend
+usa fallback local para desenvolvimento e testes privados.

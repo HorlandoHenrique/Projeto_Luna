@@ -1,3 +1,9 @@
+const lunaApiParams = new URLSearchParams(window.location.search);
+
 window.LUNA_API_CONFIG = {
-  baseUrl: "http://127.0.0.1:3333"
+  baseUrl: (
+    lunaApiParams.get("apiBase") ||
+    window.localStorage.getItem("luna_api_base_url") ||
+    ""
+  ).replace(/\/$/u, "")
 };
